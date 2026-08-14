@@ -1,0 +1,11 @@
+HEAD IN THE CLOUDS — v27
+
+FOCUS: click satisfaction and section-specific sonic identity.
+
+- Raised click-sound output from v26 without changing the user's volume controls.
+- Added unique click signatures for Story, Characters, Hisano, History, Read, Updates, Gallery and About.
+- Added a restrained sparkle burst to deliberate top-header navigation clicks.
+- Preserved spatial panning for location-based map interaction.
+- Kept hover silent.
+- Kept Chapter 1 Open File completely silent.
+- Preserved all v26 visual/artbook cleanup and the existing ambience/music systems.

@@ -1,0 +1,24 @@
+HEAD IN THE CLOUDS — v33 / MOBILE POCKET EDITION
+
+This build changes only phone-sized presentation (<= 760px). Desktop remains the source of truth.
+
+MOBILE MODEL
+- One major destination is shown at a time rather than stacking the whole website vertically.
+- Hash/deep-link navigation still works and the browser Back button moves between mobile destinations.
+- Fixed five-item mobile dock: Home / Cast / Hisano / History / Read.
+- Menu remains available for Story, Scenes, Gallery, Updates, About and audio controls.
+
+PHONE RECOMPOSITIONS
+- Hero becomes a single opening screen.
+- Characters show one active file; swipe left/right to change character.
+- Map Room becomes map-above / field-note-bottom-sheet.
+- History becomes one record at a time with compact years and swipe navigation.
+- Gallery, Scenes, Updates and Chapters become horizontal snap shelves.
+- About is compact.
+- Returning Visitor becomes a temporary toast.
+- Desktop weather journal / vertical rail is removed on phone.
+- Settings becomes a phone bottom sheet.
+- Trailer captions use phone-safe viewport sizing.
+
+DEPLOYMENT
+No second mobile upload or repository is required. The same website automatically switches presentation by viewport width.

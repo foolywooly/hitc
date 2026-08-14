@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport" id="viewport-meta"/>
+<script>
+(function(){
+  try{
+    var params=new URLSearchParams(location.search);
+    if(params.get('view')==='desktop'){
+      document.getElementById('viewport-meta').setAttribute('content','width=1200');
+      document.documentElement.classList.add('force-desktop-view');
+    }
+  }catch(e){}
+})();
+</script>
+<meta content="Head in the Clouds — an atmospheric novel set on the island of Hisano. A novel by Ben Williams." name="description"/>
+<meta content="#f7f8fa" name="theme-color"/>
+<title>Head in the Clouds — A Novel by Ben Williams</title>
+<link as="image" href="assets/decorations/site-ambient-background.png" rel="preload"/>
+<link as="image" href="assets/characters/aoko.png" rel="preload"/>
+<link as="image" href="assets/characters/momoka-tachibana.png" rel="preload"/>
+<link as="image" href="assets/characters/renji.png" rel="preload"/>
+<link as="image" href="assets/scenes/aoko-clouds.png" rel="preload"/>
+<link as="image" href="assets/world/hisano-map.png" rel="preload"/>
+<link as="audio" href="assets/audio/background-music.mp3" rel="preload"/>
+<link href="styles.css" rel="stylesheet"/>
+</head>
+<body data-build="v34" data-edition="pocket-edition">
+<div aria-hidden="true" class="site-ambient-bg"></div>
+<div aria-hidden="true" class="site-ambient-fade"></div>
+<div aria-hidden="true" class="parallax-atmosphere">
+<div class="parallax-back"></div>
+<div class="parallax-mid"></div>
+<div class="parallax-front"></div>
+</div>
+<div aria-hidden="true" class="weather-stage">
+<div class="weather-glow"></div>
+<div class="weather-clouds"></div>
+<div class="weather-rain"></div>
+</div>
+<div aria-hidden="true" class="watercolor-bloom" id="watercolor-bloom"></div>
+<div class="opening-sequence" id="opening-sequence" role="presentation">
+<button class="skip-intro" id="skip-intro" type="button">Skip</button>
+<div class="opening-title">
+<span class="opening-jp">ヘッド・イン・ザ・クラウズ</span>
+<strong>Head in the Clouds</strong>
+<span class="opening-rule"></span>
+<small>A Novel by Ben Williams</small>
+<span aria-hidden="true" class="opening-ripple"></span>
+<span aria-hidden="true" class="opening-return-detail" id="opening-return-detail"></span><span class="opening-load"><i id="opening-load-fill"></i></span></div>
+</div>
+<a class="skip-link" href="#main">Skip to content</a>
+<div aria-hidden="true" class="paper-grain"></div>
+<header class="site-header">
+<a aria-label="Head in the Clouds home" class="brand ui-sound" data-sound="home" href="#top">
+<span class="brand-jp">ヘッド・イン・ザ・クラウズ</span>
+<span class="brand-en">Head in the Clouds</span>
+</a>
+<div aria-live="polite" class="section-memory" id="section-memory"><span>00</span> / HOME</div>
+<button aria-controls="site-nav" aria-expanded="false" class="menu-toggle ui-sound" data-sound="menu" type="button"><span aria-hidden="true" class="menu-toggle-icon">≡</span><span class="menu-toggle-text">Menu</span></button>
+<nav aria-label="Primary navigation" class="site-nav" id="site-nav">
+<div class="nav-primary"><a class="ui-sound" data-sound="story" href="#story">Story</a><a class="ui-sound" data-sound="characters" href="#characters">Characters</a><a class="ui-sound" data-sound="hisano" href="#hisano">Hisano</a><a class="ui-sound" data-sound="history" href="#history">History</a><a class="ui-sound" data-sound="preview" href="#preview">Read</a><a class="ui-sound" data-sound="updates" href="#updates">Updates</a></div><div class="nav-utilities"><a class="nav-cta ui-sound" data-sound="chapter" href="#chapter-one">Read Chapter 1</a><button aria-label="Current Hisano atmosphere." class="weather-indicator ui-sound" data-sound="default" id="weather-indicator" type="button">
+<span aria-hidden="true" class="weather-indicator-dot">☀</span>
+<span class="weather-indicator-text">Hisano · Calm</span>
+</button><div aria-label="Audio controls" class="audio-controls"><button aria-label="Mute all audio" aria-pressed="false" class="audio-toggle mute-all-toggle" id="mute-all" title="Mute all audio" type="button"><svg aria-hidden="true" height="14" viewbox="0 0 24 24" width="14"><path d="M4 9v6h4l5 4V5L8 9H4zm11.5 1.1a3.5 3.5 0 0 1 0 3.8M17.8 7.8a6.5 6.5 0 0 1 0 8.4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.4"></path></svg><span class="mute-all-label">Mute</span></button>
+<button aria-pressed="false" class="audio-toggle sound-toggle ui-sound" id="sound-toggle" title="Toggle interface sounds" type="button">
+<span aria-hidden="true" class="sound-dot"></span>
+<span class="sound-label">Sound on</span>
+</button>
+<button aria-pressed="false" class="audio-toggle music-toggle ui-sound" id="music-toggle" title="Toggle background music" type="button">
+<span aria-hidden="true" class="music-note">♪</span>
+<span class="music-label">Music on</span>
+</button>
+<button aria-controls="control-drawer" aria-expanded="false" aria-label="Open site controls" class="settings-open ui-sound" data-sound="toggle" id="settings-open" title="Site controls" type="button"><span aria-hidden="true" class="settings-cog">⚙</span></button>
+</div></div></nav>
+</header>
+<main id="main">
+<section class="hero section-shell" id="top">
+<div class="hero-copy reveal">
+<button aria-label="Hidden lore note" class="section-star secret-mark lore-secret ui-sound" data-lore-id="calm" data-sound="default" type="button">✦</button>
+<p class="eyebrow">A Novel by Ben Williams</p>
+<p class="hero-jp">ヘッド・イン・ザ・クラウズ</p>
+<h1>Head in the<br/>Clouds</h1>
+<p class="hero-deck">On an island made prosperous by impossible weather, one girl has spent her life learning not to feel.</p>
+<div class="hero-actions">
+<a class="button button-primary ui-sound" data-sound="chapter" href="#chapter-one">Read Chapter 1</a>
+<a class="button button-secondary ui-sound" data-sound="hisano" href="#hisano">Discover Hisano</a>
+</div>
+<div class="hero-trailer-feature">
+<button aria-label="Play the narrated cinematic introduction to Hisano" class="hero-trailer-link ui-sound" data-sound="home" id="hisano-trailer-start" type="button">
+<span aria-hidden="true" class="hero-trailer-play">▶</span>
+<span class="hero-trailer-copy"><small>GUIDED INTRODUCTION / 音声案内</small><strong>Watch Hisano</strong><em>Narrated cinematic tour · 47 sec</em></span>
+<span aria-hidden="true" class="hero-trailer-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+</button>
+</div>
+<p aria-hidden="true" class="vertical-note">天気は、彼女の心から始まる。</p>
+</div>
+<figure class="art-slot hero-art reveal" data-slot="heroKeyVisual">
+<div class="asset-image-wrap">
+<img alt="" data-asset-image=""/>
+<img alt="" aria-hidden="true" class="asset-overlay" data-asset="heroCloudOverlay"/>
+</div>
+<div class="slot-placeholder">
+<span class="slot-code">KEY VISUAL / 01</span>
+<strong>Hero artwork slot</strong>
+<small>Drop artwork at<br/><code>assets/hero/hero-key-visual.png</code></small>
+</div>
+<figcaption>HEAD IN THE CLOUDS / HISANO ISLAND</figcaption>
+</figure>
+<div aria-hidden="true" class="scroll-cue">✦ Scroll to enter Hisano</div>
+</section>
+<div aria-hidden="true" class="wide-decoration" data-slot="storyDivider"><img alt="" data-asset-image=""/></div>
+<section class="section-shell story-section" data-section-motif="CLOUD / 雲" id="story">
+<p class="section-kicker reveal">01 / Story</p>
+<div class="story-grid">
+<div class="story-heading reveal">
+<h2>Paradise<br/>has a price.</h2>
+<p aria-hidden="true" class="side-jp">島の空は、彼女の心につながっている。</p>
+</div>
+<div class="story-copy reveal">
+<p>For fifteen years, Hisano has transformed from a quiet island village into one of Japan’s most desirable destinations. Endless sun, thriving tourism and a modern solar-powered town have made it look like a miracle.</p>
+<p>But the miracle has a name: <strong>Aoko</strong>.</p>
+<p>Her emotions influence the weather. Raised to suppress every disturbance inside herself, she has become essential to an island that learned to depend on her calm.</p>
+<p>Then <strong>Renji</strong> arrives — and the certainty holding Hisano together begins to fracture.</p>
+</div>
+</div>
+<blockquote class="quote-strip reveal">“What happens when the person holding up paradise finally wants something for herself?”</blockquote>
+</section>
+<section class="section-shell characters-section" data-section-motif="CHARACTER / 人" id="characters">
+<div aria-hidden="true" class="floating-decoration decor-left" data-slot="characterDecorationLeft"><img alt="" data-asset-image=""/></div>
+<div aria-hidden="true" class="floating-decoration decor-right" data-slot="characterDecorationRight"><img alt="" data-asset-image=""/></div>
+<div class="section-heading-row reveal">
+<div>
+<p class="section-kicker">02 / Characters</p>
+<h2>People of Hisano.</h2>
+</div>
+<p>Every character uses the same locked profile component, so sheets remain identical in scale, placement and spacing.</p>
+</div>
+<div aria-hidden="true" class="character-atmosphere">
+<div class="custom-atmosphere-slot" data-animation-slot="characterAtmosphere" id="character-wide-atmosphere"></div>
+<div class="custom-atmosphere-slot" data-animation-slot="aokoAtmosphere" id="aoko-custom-atmosphere"></div>
+<span class="character-petals"></span>
+<span class="character-pressure"></span>
+</div>
+<div aria-label="Character index" class="character-selector reveal" role="tablist">
+<button aria-controls="aoko-profile" aria-selected="true" class="character-tab ui-sound is-active" data-character-target="aoko-profile" data-sound="characters" data-ui-family="paper" role="tab" type="button"><span>01</span>Aoko</button>
+<span aria-hidden="true" class="character-selector-mark">✦</span>
+<button aria-controls="momoka-profile" aria-selected="false" class="character-tab ui-sound" data-character-target="momoka-profile" data-sound="characters" data-ui-family="paper" role="tab" type="button"><span>02</span>Momoka</button>
+<span aria-hidden="true" class="character-selector-mark">✦</span>
+<button aria-controls="renji-profile" aria-selected="false" class="character-tab ui-sound" data-character-target="renji-profile" data-sound="characters" data-ui-family="paper" role="tab" type="button"><span>03</span>Renji</button>
+</div>
+<div class="character-list">
+<article class="character-profile is-active" data-character="aoko" id="aoko-profile" role="tabpanel">
+<div class="character-sheet-stage" data-catalog="HITC / CHR.01">
+<header class="sheet-label"><span>AOKO / CHARACTER 01</span><span>青子・天候</span></header>
+<img alt="Aoko character turnaround showing front, both side profiles and back view" src="assets/characters/aoko.png"/>
+</div>
+<div class="character-copy">
+<p class="character-number">01 / CHARACTER FILE</p>
+<h3>Aoko</h3>
+<p class="character-role">The girl who controls the weather.</p>
+<p>Polite, reserved and painfully careful. Aoko has spent years learning how to make herself smaller so that Hisano can remain safe.</p>
+<div class="character-tags"><span>Weather</span><span>Isolation</span><span>Restraint</span></div>
+<dl class="character-meta"><div><dt>Residence</dt><dd>Hisano</dd></div><div><dt>Role</dt><dd>Weather-linked heroine</dd></div></dl>
+<p class="character-evolution-note" data-reader-min="1" hidden=""></p>
+</div>
+</article>
+<article class="character-profile" data-character="momoka" hidden="" id="momoka-profile" role="tabpanel">
+<div class="character-sheet-stage" data-catalog="HITC / CHR.02">
+<header class="sheet-label"><span>MOMOKA / CHARACTER 02</span><span>橘 桃花</span></header>
+<img alt="Momoka Tachibana character turnaround showing front, both side profiles and back view" src="assets/characters/momoka-tachibana.png"/>
+</div>
+<div class="character-copy">
+<p class="character-number">02 / CHARACTER FILE</p>
+<h3>Momoka <span class="surname">Tachibana</span></h3>
+<p class="character-role">The journalist who keeps pulling at loose threads.</p>
+<p>Cheeky, observant and difficult to discourage. Momoka has a habit of treating the island’s contradictions like invitations rather than warnings.</p>
+<div class="character-tags"><span>Journalist</span><span>Curious</span><span>Instigator</span></div>
+<dl class="character-meta"><div><dt>Residence</dt><dd>Hisano</dd></div><div><dt>Role</dt><dd>Student journalist</dd></div></dl>
+<p class="character-evolution-note" data-reader-min="1" hidden=""></p>
+</div>
+</article>
+<article class="character-profile" data-character="renji" hidden="" id="renji-profile" role="tabpanel">
+<div class="character-sheet-stage" data-catalog="HITC / CHR.03">
+<header class="sheet-label"><span>RENJI / CHARACTER 03</span><span>蓮司・来訪者</span></header>
+<img alt="Renji character turnaround showing front, both side profiles and back view" src="assets/characters/renji.png"/>
+</div>
+<div class="character-copy">
+<p class="character-number">03 / CHARACTER FILE</p>
+<h3>Renji</h3>
+<p class="character-role">The outsider who refuses to accept the rules.</p>
+<p>New to Hisano and impossible to ignore. Renji’s arrival forces him into a system everyone else has already agreed not to question.</p>
+<div class="character-tags"><span>Outsider</span><span>Intensity</span><span>Disruption</span></div>
+<dl class="character-meta"><div><dt>Status</dt><dd>Transfer student</dd></div><div><dt>Role</dt><dd>Protagonist</dd></div></dl>
+<p class="character-evolution-note" data-reader-min="1" hidden=""></p>
+</div>
+</article>
+</div>
+</section>
+<section class="aoko-cloud-invitation" id="aoko-cloud-invitation" aria-labelledby="aoko-cloud-question">
+  <div class="aoko-cloud-invitation-inner">
+    <span class="aoko-cloud-invitation-kicker">A QUIET MOMENT / 雲の向こう</span>
+    <h2 id="aoko-cloud-question">Do you seek to look beyond the clouds?</h2>
+    <p>A small scene waits just beyond the page.</p>
+    <div class="aoko-cloud-invitation-actions">
+      <button type="button" class="ui-sound" data-sound="characters" id="aoko-cloud-yes">Yes</button>
+      <button type="button" class="ui-sound" data-sound="utility" id="aoko-cloud-no">Not yet</button>
+    </div>
+  </div>
+</section>
+<section aria-labelledby="aoko-scene-title" class="aoko-feature-scene cinematic-art-moment" id="aoko-feature" hidden>
+<figure class="aoko-feature-figure">
+<div class="scene-loading" data-scene-loading="aoko"><span></span><small>情景を読み込み中 / LOADING SCENE</small></div>
+<img alt="Aoko looking forward in a quiet close-up" src="assets/scenes/aoko-clouds.png"/>
+<div aria-hidden="true" class="aoko-feature-grade"></div>
+<figcaption class="aoko-feature-caption">
+<span class="aoko-feature-index">AOKO / 17:26 / 雲</span>
+<h2 id="aoko-scene-title">今日の雲、それほど悪くないね。レンじ？モモカ？</h2>
+<p>“The clouds don’t look so bad today, do they? Renji? Momoka?”</p>
+<button class="aoko-voice-replay ui-sound" data-sound="characters" id="aoko-voice-replay" type="button"><span aria-hidden="true">◌</span> Replay voice</button>
+</figcaption>
+<span aria-hidden="true" class="title-wave-motif"></span>
+</figure>
+</section>
+<div aria-hidden="true" class="wide-decoration" data-slot="worldDivider"><img alt="" data-asset-image=""/></div>
+<section class="section-shell hisano-section" data-section-motif="COMPASS / 島" id="hisano">
+<div class="hisano-intro reveal">
+<p class="section-kicker">03 / Hisano Island</p>
+<h2>A beautiful place built around an uncomfortable truth.</h2>
+<p>Hisano is both setting and pressure cooker: modern tourism in the south, quieter residential districts inland, solar fields powering the island, and an untouched north that still feels older than everything built around it.</p>
+<button aria-label="Hidden Hisano lore note" class="floating-lore-star lore-secret ui-sound" data-lore-id="fifteen-years" data-sound="hisano" type="button">✦</button>
+</div>
+<div class="map-room-invitation reveal">
+<div class="map-room-invite-copy">
+<span>HISANO SURVEY ROOM / PRESENT DAY</span>
+<h3>Open the island.</h3>
+<p>The full Hisano map now lives in its own dedicated survey room — locations, field notes and map stamps without interrupting the page.</p>
+<div class="map-room-invite-meta"><span>10 LOCATIONS</span><span>FIELD NOTES</span><span>MAP STAMPS</span></div>
+</div>
+<div aria-hidden="true" class="map-room-invite-compass"><i></i><b>N</b><b>E</b><b>S</b><b>W</b></div>
+<button class="map-room-enter ui-sound" data-sound="hisano" data-ui-family="water" id="map-room-open" type="button"><span>Enter Map Room</span><small>Interactive island survey ↗</small></button>
+</div>
+<figure aria-labelledby="hisano-map-caption" class="interactive-map map-source-only" hidden>
+<div class="map-canvas">
+<img alt="Detailed illustrated map of Hisano Island with named districts and landmarks" src="assets/world/hisano-map.png"/>
+<button aria-label="Northern Wilds" class="map-hotspot ui-sound" data-location="northern" data-sound="hisano" data-ui-family="water" style="--x:53.8%;--y:16.6%" type="button"><span>Northern Wilds</span></button>
+<button aria-label="Hisano Shrine" class="map-hotspot ui-sound" data-location="shrine" data-sound="hisano" data-ui-family="water" style="--x:49.7%;--y:35.8%" type="button"><span>Hisano Shrine</span></button>
+<button aria-label="Aoko's House" class="map-hotspot ui-sound" data-location="aoko" data-sound="hisano" data-ui-family="water" style="--x:41.6%;--y:51.1%" type="button"><span>Aoko's House</span></button>
+<button aria-label="Hinomiya Heights" class="map-hotspot ui-sound" data-location="heights" data-sound="hisano" data-ui-family="water" style="--x:39.6%;--y:63.7%" type="button"><span>Hinomiya Heights</span></button>
+<button aria-label="Hisano High School" class="map-hotspot ui-sound" data-location="school" data-sound="hisano" data-ui-family="water" style="--x:58.5%;--y:42.7%" type="button"><span>High School</span></button>
+<button aria-label="Town Center" class="map-hotspot ui-sound" data-location="town" data-sound="hisano" data-ui-family="water" style="--x:67.7%;--y:52.2%" type="button"><span>Town Center</span></button>
+<button aria-label="Shiomi Resort" class="map-hotspot ui-sound" data-location="resort" data-sound="hisano" data-ui-family="water" style="--x:60.9%;--y:61.5%" type="button"><span>Shiomi Resort</span></button>
+<button aria-label="Higashi Port" class="map-hotspot ui-sound" data-location="port" data-sound="hisano" data-ui-family="water" style="--x:66.4%;--y:68.8%" type="button"><span>Higashi Port</span></button>
+<button aria-label="Southern Beaches" class="map-hotspot ui-sound" data-location="beaches" data-sound="hisano" data-ui-family="water" style="--x:50.8%;--y:82.4%" type="button"><span>Southern Beaches</span></button>
+<button aria-label="Solar Fields" class="map-hotspot ui-sound" data-location="solar" data-sound="hisano" data-ui-family="water" style="--x:57.5%;--y:55.8%" type="button"><span>Solar Fields</span></button>
+</div>
+<figcaption id="hisano-map-caption">HISANO ISLAND / LOCATION DISCOVERY · HOVER OR SELECT A PLACE</figcaption>
+<div aria-live="polite" class="map-discovery">
+<span id="map-discovery-count">0 / 10 locations discovered</span>
+<span aria-hidden="true" class="map-discovery-track"><i id="map-discovery-fill"></i></span>
+<button class="map-passport-button ui-sound" data-sound="hisano" data-ui-family="water" id="passport-open" type="button">Passport ↗</button>
+</div>
+<div aria-label="Hisano locations" class="map-location-list">
+<button data-location="northern" data-ui-family="water" type="button">Northern Wilds</button>
+<button data-location="shrine" data-ui-family="water" type="button">Shrine</button>
+<button data-location="aoko" data-ui-family="water" type="button">Aoko's House</button>
+<button data-location="heights" data-ui-family="water" type="button">Hinomiya Heights</button>
+<button data-location="school" data-ui-family="water" type="button">High School</button>
+<button data-location="town" data-ui-family="water" type="button">Town Center</button>
+<button data-location="resort" data-ui-family="water" type="button">Shiomi Resort</button>
+<button data-location="solar" data-ui-family="water" type="button">Solar Fields</button>
+<button data-location="port" data-ui-family="water" type="button">Higashi Port</button>
+<button data-location="beaches" data-ui-family="water" type="button">Southern Beaches</button>
+</div>
+<aside aria-live="polite" class="map-info-card" id="map-info-card">
+<div class="map-info-topline">
+<span class="map-info-kicker">HISANO ISLAND / LOCATION FILE</span>
+<span id="map-info-status">FIELD NOTE / UNOPENED</span>
+</div>
+<h3 id="map-info-title">Select a location</h3>
+<div aria-label="Hisano field note type" class="map-info-tabs" role="tablist">
+<button aria-controls="map-public-record" aria-selected="true" class="map-info-tab is-active" data-ui-family="water" id="map-public-tab" role="tab" type="button">Public Record</button>
+<button aria-controls="map-margin-note" aria-selected="false" class="map-info-tab" data-ui-family="water" id="map-margin-tab" role="tab" type="button">Margin Note</button>
+</div>
+<div class="map-note-panel" id="map-public-record" role="tabpanel"><p>Hover over a glowing point on the map, or choose a location below, to open its field note.</p></div>
+<div class="map-note-panel margin-note" hidden="" id="map-margin-note" role="tabpanel"><p>Some records contain handwritten notes. Others have been left deliberately clean.</p></div>
+<figure class="location-visual-slot" data-location-visual="" id="location-visual-slot">
+<div class="location-visual-placeholder">
+<span>LOCATION IMAGE / READY</span>
+<strong id="location-visual-title">Hisano field photography</strong>
+<small id="location-visual-path">assets/world/locations/…</small>
+</div>
+<img alt="" hidden="" id="location-visual-image"/>
+</figure>
+</section><section class="section-shell history-section" data-section-motif="DATE / 記録" id="history">
+<div class="section-heading-row reveal">
+<div><p class="section-kicker">04 / Hisano History</p><h2>Fifteen years that changed an island.</h2></div>
+<p>Hisano's modern history is always available to explore. Select a year to move through the island's tourism, infrastructure, weather records and changing identity.</p>
+</div>
+<div aria-labelledby="history-timeline-title" class="history-experience reveal"><div aria-hidden="true" class="history-era-scene" id="history-era-scene"><span class="history-era-year">2011</span><span class="history-era-line"></span></div>
+<div class="history-topline">
+<div><span>HISANO MUNICIPAL HISTORY / PUBLIC REFERENCE</span><h3 id="history-timeline-title">15 Years of Hisano</h3></div>
+<div aria-label="Timeline controls" class="history-controls">
+<button aria-label="Previous history entry" class="ui-sound" data-sound="hisano" data-ui-family="paper" id="history-prev" type="button">←</button>
+<span id="history-position">01 / 08</span>
+<button aria-label="Next history entry" class="ui-sound" data-sound="hisano" data-ui-family="paper" id="history-next" type="button">→</button>
+</div>
+</div>
+<div aria-label="Hisano historical timeline" class="history-timeline" role="tablist">
+<button aria-selected="true" class="history-marker is-active" data-date="18 JUN 2011" data-history-index="0" data-location="town" data-text="Hisano begins actively presenting itself as a dependable fair-weather destination. New ferry promotions and mainland advertising follow." data-title="Visitor Stability Initiative" data-ui-family="paper" data-year="18 JUN 2011" role="tab" type="button"><span>2011</span><small>18 JUN · TOURISM</small></button>
+<button aria-selected="false" class="history-marker" data-date="03 APR 2012" data-history-index="1" data-location="resort" data-text="Planning permission is granted for the first major resort development along the southern coast, beginning Hisano's shift from village tourism to destination tourism." data-title="First resort plans approved" data-ui-family="paper" data-year="03 APR 2012" role="tab" type="button"><span>2012</span><small>03 APR · RESORT</small></button>
+<button aria-selected="false" class="history-marker" data-date="22 SEP 2014" data-history-index="2" data-location="town" data-text="The old commercial streets are rebuilt around year-round visitors, public transit, cafés and new municipal services." data-title="Town centre redevelopment" data-ui-family="paper" data-year="22 SEP 2014" role="tab" type="button"><span>2014</span><small>22 SEP · TOWN</small></button>
+<button aria-selected="false" class="history-marker" data-date="15 MAR 2016" data-history-index="3" data-location="solar" data-text="Large solar installations begin supplying Hisano's rapidly modernising districts, tying the island's sustainability image to its unusually reliable sunshine." data-title="Solar expansion programme" data-ui-family="paper" data-year="15 MAR 2016" role="tab" type="button"><span>2016</span><small>15 MAR · SOLAR</small></button>
+<button aria-selected="false" class="history-marker" data-date="28 SEP 2019" data-history-index="4" data-location="port" data-text="Hisano passes through another typhoon season without a direct landfall. Local papers call it remarkable good fortune." data-title="A season without landfall" data-ui-family="paper" data-year="28 SEP 2019" role="tab" type="button"><span>2019</span><small>28 SEP · CLIMATE</small></button>
+<button aria-selected="false" class="history-marker" data-date="11 MAY 2021" data-history-index="5" data-location="heights" data-text="The hillside residential district expands as the island's permanent population grows alongside peak-season tourism." data-title="Hinomiya Heights completed" data-ui-family="paper" data-year="11 MAY 2021" role="tab" type="button"><span>2021</span><small>11 MAY · HOMES</small></button>
+<button aria-selected="false" class="history-marker" data-date="08 APR 2023" data-history-index="6" data-location="school" data-text="Hisano High School upgrades its rooftop weather instruments as part of a wider environmental education programme." data-title="School station replaced" data-ui-family="paper" data-year="08 APR 2023" role="tab" type="button"><span>2023</span><small>08 APR · SCHOOL</small></button>
+<button aria-selected="false" class="history-marker" data-date="13 AUG 2026" data-history-index="7" data-location="town" data-text="The island enters the present day as a polished tourism success: modern, renewable, crowded in summer, and extraordinarily confident in tomorrow's weather." data-title="Hisano at capacity" data-ui-family="paper" data-year="13 AUG 2026" role="tab" type="button"><span>2026</span><small>13 AUG · PRESENT</small></button>
+</div>
+<article aria-live="polite" class="history-detail" id="history-detail">
+<div class="history-detail-index"><span id="history-detail-year">18 JUN 2011</span><small>PUBLIC HISTORY FILE / 01</small></div>
+<div>
+<h3 id="history-detail-title">Visitor Stability Initiative</h3>
+<p id="history-detail-text">Hisano begins actively presenting itself as a dependable fair-weather destination. New ferry promotions and mainland advertising follow.</p>
+<div class="history-detail-actions">
+<button class="history-map-link ui-sound" data-location="town" data-sound="hisano" data-ui-family="paper" id="history-view-map" type="button">View on island map ↗</button>
+<button class="history-save ui-sound" data-sound="toggle" id="history-save" type="button">☆ Save this record</button>
+</div>
+</div>
+</article>
+</div>
+</section>
+<section aria-labelledby="scenes-heading" class="section-shell scenes-section" data-section-motif="SCENE / 景" id="scenes">
+<div class="section-heading-row reveal">
+<div><p class="section-kicker">05 / Scenes from Hisano</p><h2 id="scenes-heading">A few minutes on the island.</h2></div>
+<p>Not records. Not clues. Just quiet places and the atmosphere around them.</p>
+</div>
+<div aria-label="Scenes from Hisano" class="scene-strip reveal">
+<button class="hisano-scene-card is-active" data-scene-copy="Morning air moves through the cedar trees before the first visitors arrive." data-scene-time="06:42" data-scene-title="Shrine Steps" data-scene-tone="morning" type="button"><span>06:42</span><strong>Shrine Steps</strong><small>神社の朝</small></button>
+<button class="hisano-scene-card" data-scene-copy="Laundry shifts on balconies above a town that has learned to trust tomorrow's forecast." data-scene-time="13:18" data-scene-title="Hinomiya Heights" data-scene-tone="afternoon" type="button"><span>13:18</span><strong>Hinomiya Heights</strong><small>日向の風</small></button>
+<button class="hisano-scene-card" data-scene-copy="The ferries return through a soft sea wind while the town lights begin to wake." data-scene-time="17:03" data-scene-title="Higashi Port" data-scene-tone="golden" type="button"><span>17:03</span><strong>Higashi Port</strong><small>港の夕方</small></button>
+<button class="hisano-scene-card" data-scene-copy="The road grows quieter where the tourist signs stop." data-scene-time="19:41" data-scene-title="Northern Road" data-scene-tone="night" type="button"><span>19:41</span><strong>Northern Road</strong><small>北の道</small></button>
+</div>
+<article class="scene-stage reveal" id="scene-stage">
+<div aria-hidden="true" class="scene-stage-art"></div>
+<div class="scene-stage-copy">
+<span id="scene-stage-time">06:42 / HISANO</span>
+<h3 id="scene-stage-title">Shrine Steps</h3>
+<p id="scene-stage-copy">Morning air moves through the cedar trees before the first visitors arrive.</p>
+</div>
+</article>
+</section>
+<section aria-labelledby="gallery-heading" class="section-shell gallery-section" data-section-motif="PLATE / 絵" id="gallery">
+<div class="section-heading-row reveal"><div><p class="section-kicker">06 / Gallery</p><h2 id="gallery-heading">Artwork from Hisano.</h2></div><p>A quiet exhibition framework for future illustrations. Every plate is intentionally empty until final artwork is supplied.</p></div>
+<div class="gallery-showcase reveal"><figure aria-label="Open reserved Gallery plate 01" class="gallery-piece gallery-insert gallery-insert-featured" data-gallery-slot="01" data-gallery-title="Hero illustration" role="button" tabindex="0"><div class="gallery-insert-frame"><span aria-hidden="true" class="gallery-insert-corner"></span><div class="gallery-insert-label"><span>PLATE / 01</span><strong>Hero illustration</strong><small>作品挿入予定 / ARTWORK RESERVED</small></div></div><figcaption><span>FEATURE / WIDE</span><strong>Plate 01</strong><small>Future key artwork</small></figcaption></figure><figure aria-label="Open reserved Gallery plate 02" class="gallery-piece gallery-insert gallery-insert-portrait-a" data-gallery-slot="02" data-gallery-title="Illustration insert" role="button" tabindex="0"><div class="gallery-insert-frame"><span aria-hidden="true" class="gallery-insert-corner"></span><div class="gallery-insert-label"><span>PLATE / 02</span><strong>Illustration insert</strong><small>作品挿入予定 / ARTWORK RESERVED</small></div></div><figcaption><span>PORTRAIT / A</span><strong>Plate 02</strong><small>Character or scene artwork</small></figcaption></figure><figure aria-label="Open reserved Gallery plate 03" class="gallery-piece gallery-insert gallery-insert-portrait-b" data-gallery-slot="03" data-gallery-title="Illustration insert" role="button" tabindex="0"><div class="gallery-insert-frame"><span aria-hidden="true" class="gallery-insert-corner"></span><div class="gallery-insert-label"><span>PLATE / 03</span><strong>Illustration insert</strong><small>作品挿入予定 / ARTWORK RESERVED</small></div></div><figcaption><span>PORTRAIT / B</span><strong>Plate 03</strong><small>Character or scene artwork</small></figcaption></figure><figure aria-label="Open reserved Gallery plate 04" class="gallery-piece gallery-insert gallery-insert-landscape" data-gallery-slot="04" data-gallery-title="Illustration insert" role="button" tabindex="0"><div class="gallery-insert-frame"><span aria-hidden="true" class="gallery-insert-corner"></span><div class="gallery-insert-label"><span>PLATE / 04</span><strong>Illustration insert</strong><small>作品挿入予定 / ARTWORK RESERVED</small></div></div><figcaption><span>LANDSCAPE</span><strong>Plate 04</strong><small>Environment / chapter artwork</small></figcaption></figure><figure aria-label="Open reserved Gallery plate 05" class="gallery-piece gallery-insert gallery-insert-detail" data-gallery-slot="05" data-gallery-title="Illustration insert" role="button" tabindex="0"><div class="gallery-insert-frame"><span aria-hidden="true" class="gallery-insert-corner"></span><div class="gallery-insert-label"><span>PLATE / 05</span><strong>Illustration insert</strong><small>作品挿入予定 / ARTWORK RESERVED</small></div></div><figcaption><span>DETAIL</span><strong>Plate 05</strong><small>Detail / production artwork</small></figcaption></figure></div>
+</section><section class="section-shell preview-section" data-section-motif="WATER / 水" id="preview">
+<div class="section-heading-row reveal">
+<div><p class="section-kicker">07 / Read</p><h2>Read Head in the Clouds.</h2></div>
+<p>Chapters, release status and small visual fragments live here. As the novel releases, each entry can point directly to its reading or purchase page.</p>
+</div><div class="reading-memory reveal" id="reading-memory"><span>YOUR READING / LOCAL TO THIS BROWSER</span><div><strong id="reading-memory-status">Not started</strong><button id="reading-memory-open" type="button">Set progress ↗</button></div></div>
+<div class="novel-archive">
+<article class="chapter-entry reveal is-featured" data-publication-status="coming-soon">
+<figure class="chapter-thumb" data-slot="previewPage1"><img alt="" data-asset-image=""/><div class="chapter-thumb-placeholder">01</div></figure>
+<div class="chapter-entry-main"><span class="chapter-status">Coming soon</span><p class="chapter-index">CHAPTER 01</p><h3>Arrival</h3><p>Renji arrives on Hisano expecting a new start. The island has other plans.</p></div>
+<div class="chapter-entry-meta"><span>Release · TBA</span><span aria-label="Publication status: coming soon" class="chapter-state-track"><i></i><i class="is-current"></i><i></i></span><a class="chapter-archive-link" data-silent-ui="true" href="#chapter-one">Open file ↘</a><button aria-hidden="true" class="chapter-reader-preview ui-sound" data-sound="chapter" hidden="" id="reader-mode-open" type="button">Reader mode ↗</button></div>
+</article>
+<article class="chapter-entry reveal is-locked" data-publication-status="locked">
+<figure class="chapter-thumb" data-slot="previewPage2"><img alt="" data-asset-image=""/><div class="chapter-thumb-placeholder">02</div></figure>
+<div class="chapter-entry-main"><span class="chapter-status">Locked</span><p class="chapter-index">CHAPTER 02</p><h3>Untitled</h3><p>This file will open when the next chapter is ready to be revealed.</p></div>
+<div class="chapter-entry-meta"><span>Release · TBA</span><span aria-label="Publication status: locked" class="chapter-state-track"><i class="is-current"></i><i></i><i></i></span><span class="chapter-locked">Not yet available</span></div>
+</article>
+<article class="chapter-entry reveal is-locked" data-publication-status="locked">
+<figure class="chapter-thumb" data-slot="previewPage3"><img alt="" data-asset-image=""/><div class="chapter-thumb-placeholder">03</div></figure>
+<div class="chapter-entry-main"><span class="chapter-status">Locked</span><p class="chapter-index">CHAPTER 03</p><h3>Untitled</h3><p>A later fragment from Hisano. Details deliberately withheld.</p></div>
+<div class="chapter-entry-meta"><span>Release · TBA</span><span aria-label="Publication status: locked" class="chapter-state-track"><i class="is-current"></i><i></i><i></i></span><span class="chapter-locked">Not yet available</span></div>
+</article>
+</div>
+</section>
+<section class="section-shell updates-section" data-section-motif="POST / 便" id="updates">
+<p class="section-kicker reveal">08 / Updates</p>
+<div class="updates-grid">
+<div class="updates-title reveal"><h2>From the island.</h2><p>Chapter announcements, artwork, development notes and release news can live here.</p></div>
+<div class="updates-list from-island-editorial">
+<article class="update-item reveal" data-editorial-index="01" data-update-category="novel"><time>Coming soon</time><span class="update-category">NOVEL</span><h3>Chapter 1</h3><p>The beginning of Renji’s arrival on Hisano.</p></article>
+<article class="update-item reveal" data-editorial-index="02" data-update-category="art"><time>Development</time><span class="update-category">ART</span><h3>Character artwork</h3><p>Final key art for Aoko, Momoka, Renji and the wider cast.</p></article>
+<article class="update-item reveal" data-editorial-index="03" data-update-category="hisano"><time>Worldbuilding</time><span class="update-category">HISANO</span><h3>Hisano Island</h3><p>Maps, locations and behind-the-scenes notes from the setting.</p></article>
+</div>
+</div>
+<section aria-labelledby="newsletter-title" class="newsletter-card reveal">
+<div class="newsletter-copy">
+<span class="newsletter-kicker">ISLAND POST / PROJECT UPDATES</span>
+<h3 id="newsletter-title">Letters from Hisano.</h3>
+<p>Chapter news, new artwork and occasional development notes — sent only when there is something worth sharing.</p>
+</div>
+<form class="newsletter-form" id="newsletter-form" novalidate="">
+<label for="newsletter-email">Email address</label>
+<div class="newsletter-input-row">
+<input autocomplete="email" id="newsletter-email" inputmode="email" name="email" placeholder="you@example.com" required="" type="email"/>
+<button class="ui-sound" data-sound="updates" type="submit">Join updates <span aria-hidden="true">↗</span></button>
+</div>
+<p aria-live="polite" class="newsletter-status" id="newsletter-status">No spam. Unsubscribe whenever you like.</p>
+</form>
+</section>
+</section>
+<section aria-labelledby="about-heading" class="section-shell about-section" data-section-motif="CREDITS / 記" id="about">
+<div aria-hidden="true" class="about-rule"></div>
+<div class="about-layout reveal">
+<div><p class="section-kicker">09 / About the Project</p><h2 id="about-heading">A novel by<br/>Ben Williams.</h2></div>
+<div class="about-copy"><p><em>Head in the Clouds</em> is an atmospheric novel set on Hisano Island, a place whose prosperity rests on weather that is far too dependable.</p><dl><div><dt>Written by</dt><dd>Ben Williams</dd></div><div><dt>Setting</dt><dd>Hisano Island, Japan</dd></div><div><dt>Format</dt><dd>Novel / in development</dd></div><div><dt>Website</dt><dd>Living companion edition</dd></div></dl><a class="button button-secondary" href="https://steamcommunity.com/id/lockelucis/" rel="noopener noreferrer" target="_blank">Socials ↗</a></div>
+</div>
+</section><section class="chapter-cta section-shell reveal" id="chapter-one">
+<div class="chapter-card">
+<p class="eyebrow">The story begins here</p>
+<h2>Chapter 1</h2>
+<p>Renji arrives on Hisano expecting a new start. Instead, he finds an island where everyone seems to understand the weather except him.</p>
+<a aria-disabled="true" class="button chapter-button ui-sound" data-sound="chapter" href="#">Chapter coming soon</a>
+<small>Replace this link with your reading platform when Chapter 1 is ready.</small>
+</div>
+</section>
+</main>
+<section aria-label="Social links" class="socials-strip section-shell reveal">
+<div class="socials-inner">
+<div class="socials-copy"><span class="socials-kicker">END CREDITS / HISANO</span><p>Written by Ben Williams · Head in the Clouds.</p></div>
+<a aria-label="Open Socials on Steam in a new tab" class="socials-button ui-sound" data-sound="home" href="https://steamcommunity.com/id/lockelucis/" rel="noopener noreferrer" target="_blank">
+<span aria-hidden="true" class="socials-star">✦</span>
+<span>Socials</span>
+<span aria-hidden="true" class="socials-arrow">↗</span>
+</a>
+</div>
+</section>
+<section aria-label="Closing note" class="closing-sequence" id="closing-sequence">
+<div aria-hidden="true" class="closing-coast"></div>
+<div class="closing-inner section-shell">
+<span class="closing-jp">ヘッド・イン・ザ・クラウズ</span>
+<h2>Head in the Clouds</h2>
+<p>この島の空は、彼女の心につながっている。</p>
+<span class="closing-translation">The sky of this island is connected to her heart.</span>
+<button aria-label="A small star beside the closing note" class="closing-star lore-secret ui-sound" data-lore-id="shoreline" data-sound="home" type="button">✦</button>
+</div>
+</section>
+<footer class="site-footer section-shell">
+<div><span class="brand-jp">ヘッド・イン・ザ・クラウズ</span><strong>Head in the Clouds</strong></div>
+<p>Story &amp; concept by Ben Williams.</p>
+<div class="footer-links"><a href="#gallery">Gallery</a><a href="#about">About</a><a href="#top">Back to top ↑</a></div>
+<div aria-hidden="true" class="footer-decoration" data-slot="footerDecoration"><img alt="" data-asset-image=""/></div>
+</footer>
+<aside aria-label="Hisano weather observation" class="weather-journal" id="weather-journal">
+<span id="journal-date">08.14</span>
+<strong id="hisano-clock">10:18</strong>
+<em id="journal-weather">pressure steady / wind east</em>
+</aside>
+<div aria-live="polite" class="story-forecast" hidden="" id="story-forecast">
+<div class="story-forecast-head"><span>HISANO FORECAST / PRIVATE FEED</span><button aria-label="Close forecast" id="story-forecast-close" type="button">×</button></div>
+<div class="story-forecast-days" id="story-forecast-days"></div>
+<small>Island forecast / narrative weather display.</small>
+</div>
+<div aria-live="polite" class="visitor-memory" hidden="" id="visitor-memory"></div>
+<aside aria-live="polite" class="resume-visit" hidden="" id="resume-visit">
+<span>RETURNING VISITOR</span>
+<strong id="resume-visit-label">Resume your visit</strong>
+<div><button class="ui-sound" data-sound="hisano" id="resume-visit-go" type="button">Return ↗</button><button aria-label="Dismiss resume prompt" id="resume-visit-dismiss" type="button">×</button></div>
+</aside>
+<aside aria-label="Site controls" class="control-drawer" hidden="" id="control-drawer">
+<div class="control-drawer-head"><div><span>SITE CONTROL / 閲覧設定</span><strong>Atmosphere</strong></div><button aria-label="Close site controls" id="settings-close" type="button">×</button></div>
+<label class="control-range"><span>Music</span><output id="music-volume-output">100%</output><input id="music-volume" max="100" min="0" step="1" type="range" value="100"/></label>
+<label class="control-range"><span>Environment</span><output id="environment-volume-output">100%</output><input id="environment-volume" max="100" min="0" step="1" type="range" value="100"/></label>
+<label class="control-range"><span>UI sounds</span><output id="ui-volume-output">100%</output><input id="ui-volume" max="100" min="0" step="1" type="range" value="100"/></label>
+<label class="control-switch"><span><strong>Reduced motion</strong><small>Keep transitions, remove continuous movement.</small></span><input id="reduced-motion-toggle" type="checkbox"/></label>
+<div class="control-meta"><span id="performance-status">Performance · Auto</span><span>Settings are saved locally.</span></div>
+<div class="control-actions"><button id="restart-intro" type="button">Replay full intro</button><button class="legacy-reset-control" id="reset-discoveries" type="button">Reset map stamps</button></div>
+</aside>
+<div aria-labelledby="passport-title" aria-modal="true" class="archive-overlay passport-overlay" hidden="" id="passport-overlay" role="dialog">
+<div class="archive-overlay-card">
+<button aria-label="Close Hisano Passport" class="archive-overlay-close" data-close-overlay="passport-overlay" type="button">×</button>
+<p class="archive-overlay-kicker">HISANO FIELD OFFICE / VISITOR RECORD</p>
+<h2 id="passport-title">Hisano Passport</h2>
+<p class="archive-overlay-deck">Places you have opened on the island map are stamped below. Map discovery never gates the rest of the site.</p>
+<div class="passport-stamps" id="passport-stamps"></div>
+<small id="passport-progress">0 / 10 FIELD STAMPS</small>
+</div>
+</div>
+<div aria-labelledby="chapter-opening-title" aria-modal="true" class="chapter-opening-overlay" hidden="" id="chapter-opening-overlay" role="dialog">
+<div class="chapter-opening-inner"><button aria-label="Close chapter opening" class="chapter-opening-close" type="button">×</button>
+<span id="chapter-opening-index">CHAPTER 01</span>
+<p>第一章</p>
+<h2 id="chapter-opening-title">Arrival</h2>
+<q>Everyone on Hisano seemed to know when the rain would stop.</q>
+<button id="chapter-opening-action" type="button">Return to reading page</button>
+</div>
+</div>
+<div aria-labelledby="reader-mode-title" aria-modal="true" class="reader-mode-overlay" hidden="" id="reader-mode-overlay" role="dialog"><div class="reader-mode-shell"><button aria-label="Close reader mode" id="reader-mode-close" type="button">×</button><header><span>CHAPTER 01 / READER MODE</span><strong id="reader-mode-title">Arrival</strong><small>Reading presentation prepared for publication.</small></header><article><p class="reader-mode-placeholder">When Chapter 1 is published, the chapter text can live here in a dedicated reading layout: narrower measure, calmer motion, independent audio and reading progress.</p></article><footer><span>01</span><div class="reader-progress-line"><i></i></div><span>END</span></footer></div></div><div aria-hidden="true" class="site-animation-mount" id="site-animation-mount"></div>
+<div aria-hidden="true" class="ambient-event-layer" id="ambient-event-layer"></div>
+<div aria-hidden="true" class="time-light-layer"></div><div aria-hidden="true" class="scroll-dusk-layer"></div>
+<div aria-hidden="true" class="interaction-ripple-layer" id="interaction-ripple-layer"></div>
+<aside aria-live="polite" class="lore-note" hidden="" id="lore-note">
+<button aria-label="Close lore note" id="lore-note-close" type="button">×</button>
+<span>FOUND NOTE / 非公開</span>
+<p id="lore-note-text"></p>
+</aside>
+<div aria-labelledby="reading-progress-title" aria-modal="true" class="reading-progress-popover" hidden="" id="reading-progress-popover" role="dialog">
+<div><button aria-label="Close reading progress" id="reading-progress-close" type="button">×</button><span>READER MEMORY / LOCAL</span><h2 id="reading-progress-title">How far have you read?</h2><p>This changes only spoiler-sensitive presentation and never hides public site information.</p><div class="reading-progress-options"><button data-reading-progress="0" type="button">Not started</button><button data-reading-progress="1" type="button">Chapter 1</button><button data-reading-progress="2" type="button">Chapter 2</button><button data-reading-progress="3" type="button">Chapter 3</button></div></div>
+</div>
+<div aria-labelledby="map-room-title" aria-modal="true" class="map-room-overlay" hidden="" id="map-room-overlay" role="dialog">
+<div class="map-room-shell"><button aria-label="Close map room" class="map-room-close" id="map-room-close" type="button">×</button>
+<header><span>HISANO SURVEY ROOM / PRESENT DAY</span><h2 id="map-room-title">Hisano Island</h2><p>Select a location to bring its field note into the room.</p></header>
+<div class="map-room-layout"><div class="map-room-canvas" id="map-room-canvas"><div aria-hidden="true" class="heavy-art-loader" data-heavy-loader="map-room"><span>情景を読み込み中</span><i><b></b></i><small>LOADING SCENE</small></div><img alt="Detailed illustrated map of Hisano Island" src="assets/world/hisano-map.png"/></div><aside class="map-room-note" id="map-room-note"><span>LOCATION FILE</span><h3>Select a place</h3><p>Choose a marker to bring its field note into the survey room.</p><div class="map-room-discovery"><span id="map-room-discovery-count">0 / 10 MAP STAMPS</span><i><b id="map-room-discovery-fill"></b></i><button id="map-room-passport-open" type="button">Open Passport ↗</button></div></aside></div>
+</div>
+</div>
+<div aria-labelledby="gallery-exhibition-title" aria-modal="true" class="gallery-exhibition" hidden="" id="gallery-exhibition" role="dialog">
+<button aria-label="Close gallery artwork" class="gallery-exhibition-close" id="gallery-exhibition-close" type="button">×</button>
+<figure><div class="gallery-exhibition-stage" id="gallery-exhibition-stage"><img alt="" hidden="" id="gallery-exhibition-image"/><div class="gallery-exhibition-empty" id="gallery-exhibition-empty"><span>EXHIBITION PLATE</span><strong>Artwork insert reserved</strong><small>作品挿入予定</small></div></div><figcaption><span>HEAD IN THE CLOUDS / EXHIBITION</span><strong id="gallery-exhibition-title">Artwork</strong><small>← / → to move · Esc to close</small></figcaption></figure>
+</div>
+<div aria-live="polite" class="trailer-overlay" hidden="" id="trailer-overlay"><div class="trailer-prelude" hidden="" id="trailer-prelude"><span>情景を読み込み中</span><i><b></b></i><small>LOADING SCENE / HISANO</small></div>
+<div class="trailer-status"><span>HISANO / NARRATED INTRODUCTION</span><i><b id="trailer-progress"></b></i><small>47 SEC · Move, scroll, click or press Esc to stop</small></div>
+<div class="trailer-caption-card" hidden id="trailer-caption-card"><span>音声案内 / GUIDED INTRODUCTION</span><p id="trailer-caption"></p></div>
+</div>
+<div aria-hidden="true" class="cinematic-transition-veil" id="cinematic-transition-veil"><span></span></div>
+
+<audio id="hisano-trailer-narration" preload="auto" src="assets/audio/hisano-trailer-narration.mp3"></audio>
+<audio id="aoko-feature-voice" preload="auto" src="assets/audio/aoko-clouds-voice-echo.mp3"></audio>
+<audio id="environment-sea" preload="auto" src="assets/audio/environment-sea.wav"></audio>
+<audio id="environment-rain" preload="auto" src="assets/audio/environment-rain.wav"></audio>
+<audio id="environment-thunder" preload="auto" src="assets/audio/environment-thunder.wav"></audio>
+<audio id="character-nature" loop="" preload="auto" src="assets/audio/environment-nature.wav"></audio>
+<audio id="environment-night" loop="" preload="auto" src="assets/audio/environment-night.wav"></audio>
+<audio id="ui-click-audio" preload="auto" src="assets/audio/ui-click.wav"></audio>
+<audio autoplay="" id="background-music" loop="" preload="auto" src="assets/audio/background-music.mp3"></audio>
+<script src="assets.config.js"></script>
+<script src="script.js"></script><script src="experience-v31.js"></script><script src="experience-v34.js"></script>
+</body>
+</html>

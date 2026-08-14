@@ -1,0 +1,16 @@
+HEAD IN THE CLOUDS — v30
+STABILITY / EXHIBITION / CINEMATIC LOADING PASS
+
+- Desktop sticky header no longer shrinks/reflows while scrolling.
+- Removed Then / Now Hisano.
+- Removed Hisano Calendar.
+- Removed the redundant slim site-progress edge widget.
+- Gallery contains NO current character/map/Aoko art. It is now a blank exhibition framework for future inserts.
+- Blank Gallery plates still open into the full-screen exhibition view.
+- Hisano Trailer is visibly available beside the hero actions and follows Story -> Characters -> Hisano map -> History -> Read -> Closing in ~40 seconds.
+- Trailer is immediately interruptible by mouse/wheel/keyboard after launch.
+- Trailer now begins with a designed Japanese/English scene-loading line.
+- The full-screen map room also uses the same real loading language.
+- Existing Aoko featured scene, Renji sheet, voice/subtitles, sound design, darkening and day/night direction remain intact.
+
+NOTE: The user's message referred to an additional screenshot-specific item to remove, but no new screenshot file was attached to that turn. v30 therefore removes the explicitly named redundant UI plus the redundant edge-progress widget, without guessing at other content.

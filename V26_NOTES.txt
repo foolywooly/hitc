@@ -1,0 +1,32 @@
+HEAD IN THE CLOUDS — v26
+AESTHETICS + SOUND DESIGN PASS
+
+This build deliberately removes redundant UI instead of adding another system.
+
+REMOVED
+- "A Perfect Day. Every Day." / Visit Hisano promotional section
+- Explore quick-jump control and popover
+- Update-category tabs from "From the island."
+- Generic hover audio
+- Old multi-note magical click sound language
+
+REFINED
+- Hisano Calendar now sits directly within the Hisano experience
+- Character Relations rebuilt as a clean printed artbook spread
+- Unified editorial paper/border/corner-detail system
+- Section-specific micro-motifs and one restrained entrance gesture per major section
+- Decorative prettiness gradually recedes as the site descends into night
+- Closing sequence gives the title more visual priority
+
+SOUND LANGUAGE
+Every deliberate clickable control has a quiet contextual click response:
+- Water / glass: navigation and map interactions
+- Paper / fabric: character files, calendar and editorial controls
+- History: paper movement + tiny archival tick
+- Wind / nature: atmospheric or lore interactions
+- Utility: settings and small controls
+
+Chapter 1 "Open file" remains deliberately silent. This is intentional and preserves
+its special presentation requested during earlier sound-design passes.
+
+No sound plays merely because the pointer hovers over something.

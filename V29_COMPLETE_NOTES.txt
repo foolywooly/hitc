@@ -1,0 +1,43 @@
+HEAD IN THE CLOUDS — v29 COMPLETE / PRECISION BUILD
+
+This build corrects the incomplete v29 handoff and is based on v28.
+
+Implemented presentation systems:
+- Motion language standardized into Reveal / Change / Travel / Disappear timings
+- Optical alignment pass for title, header, character sheets, timeline and buttons
+- Section-to-section editorial handoff rules
+- Small three-plane depth system (2–8px, no exaggerated parallax)
+- Continuous morning -> afternoon -> golden hour -> dusk -> night colour grading behind UI
+- Day/night environmental audio progression and contextual micro-reverb
+- Section-specific click accents layered over the existing main-page ripple
+- Character focus transition when changing Aoko / Momoka / Renji
+- Character-sheet production metadata / catalogue treatment
+- Relations artbook composition
+- Cinematic History era presentation
+- Authored animation slots for Story / Characters / Hisano / History / Scenes / Read / Closing
+- Full-screen Aoko art moment with voice and subtitles
+- Designed scene loading line instead of spinner
+- Optional score-variant crossfade architecture
+- Repeated title wave motif at key moments only
+- Purposeful Japanese micro-typography
+- Deep-navy Gallery exhibition view
+- Scenes from Hisano section
+- Weather direction through light / tone / sound rather than synthetic rain
+- Stronger film-credit closing sequence
+- Presentation memory for selected character, History, Scenes and viewed Gallery art
+- Cinematic transition cuts entering History and the ending
+- 40-second website trailer mode, immediately interruptible
+- Infrastructure for authored 1–3 second scene-transition videos
+
+New supplied assets:
+- assets/characters/renji.png
+- assets/scenes/aoko-clouds.png
+- assets/audio/aoko-clouds-voice-echo.mp3
+
+Aoko voice scene:
+今日の雲、それほど悪くないね。レンじ？モモカ？
+“The clouds don’t look so bad today, do they? Renji? Momoka?”
+
+The voice file has a subtle 185 ms / low-wet echo baked into the supplied ElevenLabs clip.
+Synthetic CSS rain remains disabled.
+Chapter 1 Open File remains silent.

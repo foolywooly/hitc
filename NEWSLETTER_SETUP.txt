@@ -1,0 +1,26 @@
+HEAD IN THE CLOUDS — EMAIL UPDATES SETUP
+========================================
+
+The "Letters from Hisano" signup form is already styled, validated and wired.
+While you are testing locally, it stores the entered address only in that browser
+and tells you that the mailing provider is not connected yet.
+
+To collect real subscriptions after deployment:
+
+1. Create a mailing list/form with your chosen provider (for example Buttondown,
+   Mailchimp, Kit/ConvertKit, Formspree, or another provider that accepts form/API
+   submissions).
+2. Copy that provider's public form/API endpoint.
+3. Open assets.config.js and edit:
+
+   window.HITC_NEWSLETTER = {
+     endpoint: "YOUR_PROVIDER_ENDPOINT",
+     method: "POST",
+     json: true
+   };
+
+4. If the provider expects a normal URL-encoded HTML form rather than JSON,
+   change json to false.
+5. Test a real signup after the site is deployed.
+
+No visual redesign is needed when you connect the provider.

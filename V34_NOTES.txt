@@ -1,0 +1,27 @@
+HEAD IN THE CLOUDS — v34 / MOBILE POCKET EDITION REFINEMENT
+
+Mobile-only presentation changes (<=760px):
+- true destination switching with a cloud transition and hard reset to top of the selected screen
+- compact cover-like Home layout
+- tighter Cast composition with character art first and compact Profile / Relations / Notes presentation
+- swipeable Scenes, Gallery, History, Chapters and Updates with glowing swipe guidance
+- slimmer bottom navigation dock
+- custom line-art settings cog on mobile
+- compact menu utility controls
+- mobile Map Room re-composed as map + bottom field-note sheet
+- compact Read / About / Updates screens
+- phone-only scroll guidance cue when a screen needs more vertical movement
+- trailer hides phone navigation while playing
+- optional Extended View opens the desktop composition on the same GitHub site via ?view=desktop
+
+Global quality-of-life fix:
+- all audio pauses when Safari/app hosting is backgrounded on iPhone/iPad; looping music/ambience may resume when the page becomes visible again
+- active trailer/dialogue voice is stopped when the page is backgrounded
+
+Intentional desktop change:
+- Aoko's cinematic dialogue no longer auto-plays on scroll
+- it is now introduced by the question “Do you seek to look beyond the clouds?”
+- YES reveals the artwork and plays the voice; NOT YET leaves the moment closed
+- trailer playback suppresses/stops Aoko's voice so the two audio moments cannot fight
+
+Desktop layout/styles otherwise remain unchanged.

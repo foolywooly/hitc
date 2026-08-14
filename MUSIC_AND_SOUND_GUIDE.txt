@@ -1,0 +1,30 @@
+HEAD IN THE CLOUDS — AUDIO GUIDE / v27
+
+The soundtrack remains the main musical layer. Interface sounds are click-only and controlled by the existing UI Sounds slider / Sound toggle.
+
+SECTION CLICK IDENTITIES
+- HOME / TITLE: airy three-point bell
+- STORY: water landing on glass
+- CHARACTERS: paper sheet + soft fabric air
+- HISANO / MAP: compass-like coastal glass chime, spatially panned on map points
+- HISTORY: archival paper movement + restrained mechanical tick
+- READ / CHAPTER NAVIGATION: deeper book-opening resonance
+- UPDATES / NEWSLETTER: postal stamp + small registration bell
+- GALLERY: photographic/glass flick
+- ABOUT / FOOTER: warmer lower editorial tone
+- WEATHER: quiet wind response
+- SETTINGS / UTILITIES: restrained mechanical cue
+
+HEADER
+Primary header navigation, the brand and Read Chapter 1 navigation receive a small blue sparkle burst on CLICK only. The sparkle follows the selected section sound signature.
+
+IMPORTANT EXCEPTION
+Chapter 1 OPEN FILE remains deliberately SILENT. It should not inherit any generic click sound.
+
+HOVER
+Hover is silent. This avoids repetitive audio while moving the pointer across the interface.
+
+BALANCE
+The v27 click cues are more audible than v26 but remain much quieter than the soundtrack. Use Site Controls > UI sounds to adjust globally.
+
+V28 interaction note: header clicks use sparkle; main-page clicks use the subtle water ripple.

@@ -1,0 +1,10 @@
+HEAD IN THE CLOUDS — v28
+
+FOCUS: restore the subtle main-page ripple without touching the header sparkle.
+
+- Every clickable link/button inside <main> gets the restrained water ripple at the click point.
+- Header clicks remain sparkle-only.
+- Section-specific v27 click sounds are unchanged.
+- Hover remains silent.
+- Chapter 1 Open File remains sound-silent; its click can still receive the visual page ripple.
+- Reduced Motion disables the ripple.

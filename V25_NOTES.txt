@@ -1,0 +1,26 @@
+HEAD IN THE CLOUDS — V25 / ONE DAY ON HISANO
+
+This build removes the Hisano Archive hub and its archive-only mini-game systems.
+Map discovery remains completely self-contained on the Hisano map and Passport.
+
+Major presentation / QoL changes:
+- Continuous morning-to-night site direction with background-only darkness.
+- Full opening every visit, with asset preload rail and subtle returning detail.
+- Quick-jump site index; stable compact header; mute-all shortcut.
+- Remembered section, character, history and reading state.
+- Character Profile / Relations / Notes presentation.
+- Full-screen Hisano map room plus the normal untouched map.
+- Direct Then / Now survey comparison framework (2011 period-art slot supported).
+- Open Hisano Tourism section and real 2026 island calendar.
+- Real-date 2011—2026 History timeline with environmental era treatment.
+- Gallery section using current real artwork and deliberate future-art slots.
+- Reader progress and release-aware chapter presentation without gating public info.
+- Silent Open Chapter interaction; cinematic chapter portal.
+- Newsletter “Letter registered” success state.
+- About / production credits section and cinematic end-credit bridge.
+- Seasonal / chapter-release presentation hooks.
+- Authored animation slots remain ready for future WebM/MP4 assets.
+- Extremely quiet hover harmonic on meaningful navigation only.
+
+Animation asset slots live in assets.config.js. The site never invents replacement
+artwork when an authored asset is missing.

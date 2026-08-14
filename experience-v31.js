@@ -1,0 +1,781 @@
+(() => {
+  'use strict';
+  const q=(s,r=document)=>r.querySelector(s);
+  const qa=(s,r=document)=>[...r.querySelectorAll(s)];
+  const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,Number(n)||0));
+  const body=document.body;
+  const release=window.HITC_RELEASE || {currentChapter:0,seasonalEvent:'auto'};
+  const animations=window.HITC_ANIMATIONS || {};
+  const audioApi=window.HITC_AUDIO_API || {};
+  const audioState=window.HITC_AUDIO_STATE || {music:1,environment:1,ui:1};
+  const reduceQuery=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const isReduced=()=>reduceQuery.matches || body.classList.contains('user-reduced-motion');
+
+  const save=(k,v)=>{try{localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v));}catch(_){}};
+  const load=(k,fallback='')=>{try{const v=localStorage.getItem(k);return v===null?fallback:v;}catch(_){return fallback;}};
+  const loadJSON=(k,fallback)=>{try{const v=JSON.parse(localStorage.getItem(k));return v??fallback;}catch(_){return fallback;}};
+
+  // -----------------------------------------------------------------------
+  // 01 / The site is a directed day on Hisano, not an archive application.
+  // -----------------------------------------------------------------------
+  const sectionMeta={
+    top:{n:'00',label:'HOME',weather:['☀','Hisano · Morning calm'],phase:'morning'},
+    story:{n:'01',label:'STORY',weather:['☁','Hisano · High cloud'],phase:'morning'},
+    characters:{n:'02',label:'CHARACTERS',weather:['◌','Hisano · Garden breeze'],phase:'late-morning'},
+    hisano:{n:'03',label:'HISANO',weather:['≋','Hisano · Sea wind'],phase:'afternoon'},
+    history:{n:'04',label:'HISTORY',weather:['◌','Hisano · Pressure steady'],phase:'golden'},
+    scenes:{n:'05',label:'SCENES',weather:['≋','Hisano · Evening air'],phase:'golden'},
+    gallery:{n:'06',label:'GALLERY',weather:['◌','Hisano · Light falling'],phase:'golden'},
+    preview:{n:'07',label:'READ',weather:['☁','Hisano · Dusk gathering'],phase:'dusk'},
+    updates:{n:'08',label:'UPDATES',weather:['◌','Hisano · Visibility soft'],phase:'blue'},
+    about:{n:'09',label:'ABOUT',weather:['✦','Hisano · After sunset'],phase:'night'},
+    'chapter-one':{n:'10',label:'CHAPTER 01',weather:['✦','Hisano · Night'],phase:'night'}
+  };
+  const sectionEls=Object.keys(sectionMeta).map(id=>q(`#${id}`)).filter(Boolean);
+  let currentSection='top';
+  const memory=q('#section-memory');
+  const weather=q('#weather-indicator');
+  const weatherDot=q('.weather-indicator-dot',weather);
+  const weatherText=q('.weather-indicator-text',weather);
+  const progressFill=q('#site-progress-fill');
+  const progressLabel=q('#site-progress-label');
+
+  function setCurrentSection(id){
+    if(!sectionMeta[id] || currentSection===id) return;
+    currentSection=id;
+    body.dataset.currentSection=id;
+    const m=sectionMeta[id];
+    if(memory) memory.innerHTML=`<span>${m.n}</span> / ${m.label}`;
+    if(weatherDot) weatherDot.textContent=m.weather[0];
+    if(weatherText) weatherText.textContent=m.weather[1];
+    if(progressLabel) progressLabel.textContent=m.label;
+    sectionEls.forEach(el=>el.classList.toggle('is-current-scene',el.id===id));
+    qa('.nav-primary a').forEach(a=>{
+      const target=(a.getAttribute('href')||'').slice(1);
+      a.classList.toggle('is-context',target===id);
+    });
+    save('hitc-last-section-v25',id);
+  }
+  if('IntersectionObserver' in window){
+    const obs=new IntersectionObserver(entries=>{
+      const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+      if(visible) setCurrentSection(visible.target.id);
+    },{threshold:[.2,.38,.58],rootMargin:'-72px 0px -25% 0px'});
+    sectionEls.forEach(el=>obs.observe(el));
+  }
+
+  // Smooth narrative darkness: starts immediately, ends almost black, always behind UI.
+  let visualJourney=0, journeyTarget=0, journeyFrame=0, lastScrollY=window.scrollY;
+  function calculateJourney(){
+    const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+    journeyTarget=clamp(window.scrollY/max);
+    if(!journeyFrame) journeyFrame=requestAnimationFrame(animateJourney);
+  }
+  function animateJourney(){
+    const goingUp=journeyTarget<visualJourney;
+    const alpha=isReduced()?1:(goingUp?.19:.075);
+    visualJourney += (journeyTarget-visualJourney)*alpha;
+    if(Math.abs(journeyTarget-visualJourney)<.0006) visualJourney=journeyTarget;
+    const dusk=.012 + Math.pow(visualJourney,1.42)*.978;
+    body.style.setProperty('--scroll-dusk',dusk.toFixed(4));
+    body.style.setProperty('--journey',visualJourney.toFixed(4));
+    body.style.setProperty('--journey-percent',`${(visualJourney*100).toFixed(2)}%`);
+    if(progressFill) progressFill.style.height=`${Math.max(2,visualJourney*100)}%`;
+    const start=10*60+18, end=20*60+7;
+    const min=Math.round(start+(end-start)*visualJourney);
+    const clock=q('#hisano-clock'); if(clock) clock.textContent=`${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`;
+    const phase=visualJourney<.16?'morning':visualJourney<.34?'late-morning':visualJourney<.51?'afternoon':visualJourney<.66?'golden':visualJourney<.79?'dusk':visualJourney<.9?'blue':'night';
+    body.dataset.dayPhase=phase;
+    body.classList.toggle('deep-hisano',visualJourney>.68);
+    body.classList.toggle('hisano-night',visualJourney>.88);
+    updateWeatherJournal(visualJourney);
+    if(Math.abs(journeyTarget-visualJourney)>.0006) journeyFrame=requestAnimationFrame(animateJourney); else journeyFrame=0;
+  }
+  function updateWeatherJournal(p){
+    const journal=q('#journal-weather'); if(!journal) return;
+    let text='pressure steady / wind east';
+    if(p>.28) text='sea breeze / pressure steady';
+    if(p>.52) text='pressure falling / light unchanged';
+    if(p>.70) text='visibility soft / forecast unchanged';
+    if(p>.84) text='clear sky / pressure still falling';
+    if(p>.94) text='forecast nominal / reading inconsistent';
+    journal.textContent=text;
+    const date=q('#journal-date'); if(date) date.textContent='13.08.2026';
+  }
+  window.addEventListener('scroll',()=>{lastScrollY=window.scrollY;calculateJourney();},{passive:true});
+  window.addEventListener('resize',calculateJourney,{passive:true});
+  calculateJourney();
+
+  // Very small depth motion from the supplied watercolor only.
+  function updateParallax(){
+    if(isReduced()) return;
+    const y=visualJourney;
+    body.style.setProperty('--parallax-back-y',`${(y*-7).toFixed(2)}px`);
+    body.style.setProperty('--parallax-mid-y',`${(y*-13).toFixed(2)}px`);
+    body.style.setProperty('--parallax-front-y',`${(y*-20).toFixed(2)}px`);
+  }
+  window.setInterval(updateParallax,180);
+
+  // -----------------------------------------------------------------------
+  // 02 / Full intro every time + useful preload + returning detail.
+  // -----------------------------------------------------------------------
+  const preload=[
+    'assets/decorations/site-ambient-background.png','assets/characters/aoko.png',
+    'assets/characters/momoka-tachibana.png','assets/world/hisano-map.png'
+  ];
+  const loadFill=q('#opening-load-fill');
+  let loaded=0;
+  preload.forEach(src=>{const im=new Image();const done=()=>{loaded++;if(loadFill)loadFill.style.width=`${loaded/preload.length*100}%`;};im.onload=im.onerror=done;im.src=src;});
+  let visits=Number(load('hitc-visit-count-v25','0'))||0; visits++; save('hitc-visit-count-v25',String(visits));
+  const returnDetail=q('#opening-return-detail');
+  if(returnDetail && visits>1){
+    const mapCount=loadJSON('hitc-map-discovery',[]).length;
+    returnDetail.textContent=mapCount>=10?'HISANO REMEMBERS YOUR ROUTE':visits>3?'ANOTHER DAY ON HISANO':'RETURNING TO HISANO';
+  }
+  const skip=q('#skip-intro');
+  const finishIntro=()=>skip?.click();
+  document.addEventListener('keydown',e=>{
+    if(!q('#opening-sequence')) return;
+    if(['Escape','Enter',' '].includes(e.key)){e.preventDefault();finishIntro();}
+  });
+
+  // -----------------------------------------------------------------------
+
+  // 03 / Header remains optically stable while scrolling. No height/font reflow.
+  const header=q('.site-header');
+
+  // -----------------------------------------------------------------------
+  // 04 / Settings, mute-all, performance and resume.
+  // -----------------------------------------------------------------------
+  const drawer=q('#control-drawer'), settingsOpen=q('#settings-open');
+  function openDrawer(){if(!drawer)return;drawer.hidden=false;requestAnimationFrame(()=>drawer.classList.add('is-open'));settingsOpen?.setAttribute('aria-expanded','true');}
+  function closeDrawer(){if(!drawer)return;drawer.classList.remove('is-open');settingsOpen?.setAttribute('aria-expanded','false');setTimeout(()=>{if(!drawer.classList.contains('is-open'))drawer.hidden=true;},180);}
+  settingsOpen?.addEventListener('click',()=>drawer?.hidden?openDrawer():closeDrawer());
+  q('#settings-close')?.addEventListener('click',closeDrawer);
+  const ranges=[['music-volume','music-volume-output','music','setMusicLevel'],['environment-volume','environment-volume-output','environment','setEnvironmentLevel'],['ui-volume','ui-volume-output','ui','setUiLevel']];
+  ranges.forEach(([id,out,key,method])=>{const input=q(`#${id}`),output=q(`#${out}`);if(!input)return;input.value=Math.round(clamp(audioState[key])*100);if(output)output.textContent=`${input.value}%`;input.addEventListener('input',()=>{const v=clamp(input.value/100);if(output)output.textContent=`${input.value}%`;audioApi[method]?.(v);});});
+  const reduced=q('#reduced-motion-toggle'); if(reduced){const saved=load('hitc-user-reduced-motion')==='true';reduced.checked=saved;body.classList.toggle('user-reduced-motion',saved);reduced.addEventListener('change',()=>{body.classList.toggle('user-reduced-motion',reduced.checked);save('hitc-user-reduced-motion',String(reduced.checked));});}
+  q('#restart-intro')?.addEventListener('click',()=>{location.hash='#top';location.reload();});
+  q('#reset-discoveries')?.addEventListener('click',()=>{if(q('#reset-discoveries').dataset.armed!=='1'){q('#reset-discoveries').dataset.armed='1';q('#reset-discoveries').textContent='Click again to confirm';setTimeout(()=>{const b=q('#reset-discoveries');if(b){b.dataset.armed='0';b.textContent='Reset map stamps';}},2800);return;}localStorage.removeItem('hitc-map-discovery');location.reload();});
+
+  const mute=q('#mute-all');
+  mute?.addEventListener('click',()=>{
+    const sound=q('#sound-toggle'),music=q('#music-toggle');
+    const muted=mute.getAttribute('aria-pressed')==='true';
+    if(!muted){
+      if(sound?.getAttribute('aria-pressed')!=='true') sound.click();
+      if(music?.getAttribute('aria-pressed')!=='true') music.click();
+    }else{
+      if(sound?.getAttribute('aria-pressed')==='true') sound.click();
+      if(music?.getAttribute('aria-pressed')==='true') music.click();
+    }
+    mute.setAttribute('aria-pressed',String(!muted));
+    const label=q('.mute-all-label',mute);if(label)label.textContent=!muted?'Unmute':'Mute';
+  });
+
+  // Performance: preserve smoothness rather than forcing effects.
+  const lite=(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)||(navigator.deviceMemory&&navigator.deviceMemory<=4);
+  body.classList.toggle('performance-lite',!!lite);
+  const perf=q('#performance-status'); if(perf)perf.textContent=`Performance · Auto / ${lite?'Lite':'Full'}`;
+
+  // Resume is optional and never replaces the full intro.
+  const resume=q('#resume-visit');
+  const last=load('hitc-last-section-v25','top');
+  if(resume&&visits>1&&last!=='top'){
+    const label=q('#resume-visit-label');if(label)label.textContent=`Return to ${sectionMeta[last]?.label||'Hisano'}`;
+    setTimeout(()=>{resume.hidden=false;requestAnimationFrame(()=>resume.classList.add('is-visible'));},2900);
+  }
+  q('#resume-visit-go')?.addEventListener('click',()=>{q(`#${last}`)?.scrollIntoView({behavior:isReduced()?'auto':'smooth'});resume?.classList.remove('is-visible');});
+  q('#resume-visit-dismiss')?.addEventListener('click',()=>{resume?.classList.remove('is-visible');setTimeout(()=>{if(resume)resume.hidden=true;},180);});
+
+  // -----------------------------------------------------------------------
+  // 05 / Character presence + elegant profile / relations / notes.
+  // -----------------------------------------------------------------------
+  const relationshipData={
+    aoko:[
+      {code:'02',name:'Momoka',jp:'橘 桃花',text:'She asks questions I would rather leave unanswered. Somehow, that also makes the room feel less quiet.'},
+      {code:'03',name:'Renji',jp:'転校生',text:'He looks at the rules as though someone has merely forgotten to challenge them.'}
+    ],
+    momoka:[
+      {code:'01',name:'Aoko',jp:'青子',text:'She notices every storm before it arrives, but never admits when one is already inside the room.'},
+      {code:'03',name:'Renji',jp:'転校生',text:'Terrible at leaving a mystery alone. Conveniently, so am I.'}
+    ],
+    renji:[
+      {code:'01',name:'Aoko',jp:'青子',text:'Everyone speaks about what she can do before they speak about who she is.'},
+      {code:'02',name:'Momoka',jp:'橘 桃花',text:'She grins whenever something stops making sense. I am beginning to understand why.'}
+    ]
+  };
+  const noteData={
+    aoko:'Design note / calm silhouettes, restrained gesture, weather held at the edge rather than performed.',
+    momoka:'Design note / an investigative energy that breaks the island’s careful stillness.',
+    renji:'Design note / the outsider is kept visually direct: a clean silhouette, little ornament, and a red thread detail that echoes the other character files.'
+  };
+
+  function softlySetNatureVolume(target, duration=300){
+    const nature=q('#character-nature');
+    if(!nature || nature.paused) return;
+    const start=Number.isFinite(nature.volume)?nature.volume:0;
+    const began=performance.now();
+    const step=now=>{
+      const p=Math.min(1,(now-began)/duration);
+      const e=1-Math.pow(1-p,3);
+      nature.volume=start+(target-start)*e;
+      if(p<1)requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  qa('.character-profile[data-character]').forEach(profile=>{
+    const copy=q('.character-copy',profile),key=profile.dataset.character;if(!copy)return;
+    const existing=[...copy.children].map(n=>n.cloneNode(true));
+    const currentName=(q('h3',profile)?.textContent||key).trim().split(' ')[0];
+    const currentCode=key==='aoko'?'01':key==='momoka'?'02':'03';
+    const relations=relationshipData[key]||[];
+
+    const sub=document.createElement('div');
+    sub.className='character-subnav';
+    sub.innerHTML='<button class="is-active" data-char-view="profile" data-ui-family="paper" type="button">Profile</button><button data-char-view="relations" data-ui-family="paper" type="button">Relations</button><button data-char-view="notes" data-ui-family="paper" type="button">Notes</button>';
+
+    const stage=document.createElement('div');stage.className='character-copy-stage';
+    const profilePanel=document.createElement('div');profilePanel.dataset.charPanel='profile';profilePanel.className='character-copy-panel is-active';existing.forEach(n=>profilePanel.appendChild(n));
+
+    const rel=document.createElement('div');
+    rel.dataset.charPanel='relations';rel.className='character-copy-panel character-relations-panel';rel.dataset.perspective=currentName;rel.hidden=true;
+    rel.innerHTML=`
+      <div class="relationship-spread">
+        <header class="relationship-spread-head">
+          <span>RELATIONSHIP STUDY / ${currentCode}</span>
+          <small>彼らを結ぶもの</small>
+        </header>
+        <div class="relationship-current">
+          <span>${currentCode} / PERSPECTIVE</span>
+          <strong>${currentName}</strong>
+        </div>
+        <div class="relationship-connections">
+          ${relations.map((r,i)=>`<article class="relationship-entry" data-relation-index="0${i+1}">
+            <div class="relationship-name"><span>${r.code}</span><strong>${r.name}</strong><small>${r.jp}</small></div>
+            <i aria-hidden="true"></i>
+            <p>${r.text}</p>
+          </article>`).join('')}
+        </div>
+        <footer><span>HISANO CHARACTER FILE</span><em>Relations are recorded from ${currentName}'s point of view.</em></footer>
+      </div>`;
+
+    const notes=document.createElement('div');notes.dataset.charPanel='notes';notes.className='character-copy-panel character-notes-panel';notes.hidden=true;notes.innerHTML=`<span>PRODUCTION NOTE / ${key.toUpperCase()}</span><p>${noteData[key]||''}</p><small>Character presentation can evolve with future chapter releases without changing the sheet geometry.</small>`;
+    copy.innerHTML='';copy.append(sub,stage);stage.append(profilePanel,rel,notes);
+
+    sub.addEventListener('click',e=>{
+      const b=e.target.closest('[data-char-view]');if(!b)return;
+      qa('button',sub).forEach(x=>x.classList.toggle('is-active',x===b));
+      qa('[data-char-panel]',stage).forEach(p=>{const on=p.dataset.charPanel===b.dataset.charView;p.hidden=!on;p.classList.toggle('is-active',on);});
+      profile.classList.toggle('is-relations-open',b.dataset.charView==='relations');
+      const base=.145*(audioState.environment??1);
+      softlySetNatureVolume(b.dataset.charView==='relations'?base*.78:base,360);
+    });
+  });
+  qa('.character-tab').forEach(tab=>tab.addEventListener('click',()=>{
+    save('hitc-last-character-v25',tab.dataset.characterTarget||'aoko-profile');
+    history.replaceState(null,'',`#character/${(tab.dataset.characterTarget||'aoko-profile').replace('-profile','')}`);
+    const base=.145*(audioState.environment??1);softlySetNatureVolume(base,260);
+  }));
+  const storedChar=load('hitc-last-character-v25',''); if(storedChar){const t=q(`.character-tab[data-character-target="${storedChar}"]`); if(t)setTimeout(()=>t.click(),40);}
+
+  // One subtle presence effect: artwork breathes by 1px, no synthetic rain.
+  const characterSection=q('#characters');
+  characterSection?.addEventListener('pointermove',e=>{if(isReduced())return;const r=characterSection.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;body.style.setProperty('--character-presence-x',`${(x*1.5).toFixed(2)}px`);body.style.setProperty('--character-presence-y',`${(y*1.2).toFixed(2)}px`);});
+
+  // -----------------------------------------------------------------------
+  // 06 / Full-screen Hisano map room, map-only discovery, passport.
+  // -----------------------------------------------------------------------
+  const room=q('#map-room-overlay'),roomCanvas=q('#map-room-canvas'),roomNote=q('#map-room-note');
+  function roomDiscoveryState(){
+    let found=[];try{found=JSON.parse(localStorage.getItem('hitc-map-discovery')||'[]');}catch(_){}
+    return Array.isArray(found)?found:[];
+  }
+  function roomDiscoveryMarkup(){
+    const count=new Set(roomDiscoveryState()).size;
+    return `<div class="map-room-discovery"><span id="map-room-discovery-count">${count} / 10 MAP STAMPS</span><i><b id="map-room-discovery-fill" style="width:${count*10}%"></b></i><button id="map-room-passport-open" type="button">Open Passport ↗</button></div>`;
+  }
+  function syncRoomDiscovery(){
+    const state=roomDiscoveryState();const count=new Set(state).size;
+    const label=q('#map-room-discovery-count');const fill=q('#map-room-discovery-fill');
+    if(label)label.textContent=`${count} / 10 MAP STAMPS`;if(fill)fill.style.width=`${count*10}%`;
+    qa('.map-room-hotspot').forEach(btn=>btn.classList.toggle('is-discovered',state.includes(btn.dataset.location)));
+  }
+  function renderRoomNote(source){
+    if(!roomNote||!source)return;
+    const title=q('#map-info-title')?.textContent||source.querySelector('span')?.textContent||'Hisano';
+    const text=q('#map-public-record p')?.textContent||'';
+    roomNote.innerHTML=`<span>LOCATION FILE / ${source.querySelector('span')?.textContent||''}</span><h3>${title}</h3><p>${text}</p>${roomDiscoveryMarkup()}`;
+  }
+  if(roomCanvas){
+    qa('.map-hotspot').forEach(source=>{
+      const b=document.createElement('button');b.type='button';b.className='map-room-hotspot';b.style.cssText=source.getAttribute('style')||'';b.dataset.location=source.dataset.location;b.setAttribute('aria-label',source.getAttribute('aria-label')||source.dataset.location);b.innerHTML='<i></i><span>'+((source.querySelector('span')?.textContent)||source.dataset.location)+'</span>';roomCanvas.appendChild(b);
+      b.addEventListener('click',()=>{source.click();setTimeout(()=>{renderRoomNote(source);syncRoomDiscovery();},30);});
+    });
+    roomNote?.addEventListener('click',e=>{if(e.target.closest('#map-room-passport-open'))q('#passport-open')?.click();});
+  }
+  function openMapRoom(){if(!room)return;room.hidden=false;requestAnimationFrame(()=>room.classList.add('is-open'));body.classList.add('modal-open');syncRoomDiscovery();}
+  function closeMapRoom(){if(!room)return;room.classList.remove('is-open');body.classList.remove('modal-open');setTimeout(()=>{if(!room.classList.contains('is-open'))room.hidden=true;},220);}
+  function selectRoomLocation(key){const b=q(`.map-room-hotspot[data-location="${key}"]`);if(b)b.click();}
+  window.HITC_MAP_ROOM_API={open:openMapRoom,close:closeMapRoom,select:selectRoomLocation};
+  q('#map-room-open')?.addEventListener('click',openMapRoom);q('#map-room-close')?.addEventListener('click',closeMapRoom);
+  const mapHeavyLoader=q('[data-heavy-loader="map-room"]');
+  const mapHeavyImg=q('#map-room-canvas>img');
+  function settleMapLoader(){if(!mapHeavyLoader)return;setTimeout(()=>mapHeavyLoader.classList.add('is-ready'),520);}
+  if(mapHeavyImg){if(mapHeavyImg.complete)settleMapLoader();else mapHeavyImg.addEventListener('load',settleMapLoader,{once:true});mapHeavyImg.addEventListener('error',settleMapLoader,{once:true});}
+  q('#map-room-open')?.addEventListener('click',()=>{if(!mapHeavyLoader)return;mapHeavyLoader.classList.remove('is-ready');setTimeout(settleMapLoader,120);});
+
+  const passport=q('#passport-overlay');
+  function renderPassport(){const wrap=q('#passport-stamps');if(!wrap)return;const found=new Set(loadJSON('hitc-map-discovery',[]));const labels={northern:'Northern Wilds',shrine:'Hisano Shrine',aoko:"Aoko's House",heights:'Hinomiya Heights',school:'High School',town:'Town Center',resort:'Shiomi Resort',solar:'Solar Fields',port:'Higashi Port',beaches:'Southern Beaches'};wrap.innerHTML=Object.entries(labels).map(([k,v])=>`<div class="passport-stamp ${found.has(k)?'is-found':''}"><span>${found.has(k)?'✦':'○'}</span><strong>${v}</strong></div>`).join('');const pr=q('#passport-progress');if(pr)pr.textContent=`${found.size} / 10 FIELD STAMPS`;}
+  q('#passport-open')?.addEventListener('click',()=>{renderPassport();if(passport)passport.hidden=false;});
+  q('#passport-overlay [data-close-overlay]')?.addEventListener('click',()=>{if(passport)passport.hidden=true;});
+
+  // -----------------------------------------------------------------------
+  // 08 / History: stable real-date timeline + cinematic environmental state.
+  // -----------------------------------------------------------------------
+  const markers=qa('.history-marker');let historyIndex=0;
+  const detailYear=q('#history-detail-year'),detailTitle=q('#history-detail-title'),detailText=q('#history-detail-text'),position=q('#history-position'),historyScene=q('#history-era-scene');
+  function selectHistory(i,{push=true,focus=false}={}){if(!markers.length)return;historyIndex=(i+markers.length)%markers.length;const m=markers[historyIndex];markers.forEach((x,j)=>{x.classList.toggle('is-active',j===historyIndex);x.setAttribute('aria-selected',String(j===historyIndex));});if(detailYear)detailYear.textContent=m.dataset.date||m.dataset.year;if(detailTitle)detailTitle.textContent=m.dataset.title;if(detailText)detailText.textContent=m.dataset.text;if(position)position.textContent=`${String(historyIndex+1).padStart(2,'0')} / ${String(markers.length).padStart(2,'0')}`;q('#history-view-map')?.setAttribute('data-location',m.dataset.location||'town');if(historyScene){historyScene.dataset.era=String(historyIndex);q('.history-era-year',historyScene).textContent=(m.dataset.year||'').slice(-4);};body.dataset.historyEra=String(historyIndex);if(push)history.replaceState(null,'',`#history/${historyIndex+1}`);save('hitc-history-index-v25',String(historyIndex));if(focus)m.focus({preventScroll:true});}
+  markers.forEach((m,i)=>m.addEventListener('click',()=>selectHistory(i)));
+  q('#history-prev')?.addEventListener('click',()=>selectHistory(historyIndex-1,{focus:true}));q('#history-next')?.addEventListener('click',()=>selectHistory(historyIndex+1,{focus:true}));
+  q('#history-view-map')?.addEventListener('click',e=>{const k=e.currentTarget.dataset.location;openMapRoom();setTimeout(()=>selectRoomLocation(k),280);});
+  const savedHistory=Number(load('hitc-history-index-v25','0'))||0;selectHistory(savedHistory,{push:false});
+
+  // Keyboard polish.
+  document.addEventListener('keydown',e=>{if(e.target.matches('input,textarea,select'))return;if(e.key==='Escape'){closeMapRoom();closeJump();closeDrawer();q('#reading-progress-popover')&&(q('#reading-progress-popover').hidden=true);q('#reader-mode-overlay')&&(q('#reader-mode-overlay').hidden=true);q('#chapter-opening-overlay')&&(q('#chapter-opening-overlay').hidden=true);}if(currentSection==='history'&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){e.preventDefault();selectHistory(historyIndex+(e.key==='ArrowRight'?1:-1),{focus:true});}});
+
+  // -----------------------------------------------------------------------
+  // 09 / Reading memory, evolving presentation, chapter portal and reader mode.
+  // -----------------------------------------------------------------------
+  let readingProgress=Number(load('hitc-reader-progress','0'))||0;
+  const readingPop=q('#reading-progress-popover');
+  function applyReadingProgress(){const status=q('#reading-memory-status');if(status)status.textContent=readingProgress?`Through Chapter ${readingProgress}`:'Not started';body.dataset.readerProgress=String(readingProgress);qa('[data-reading-progress]').forEach(b=>b.classList.toggle('is-active',Number(b.dataset.readingProgress)===readingProgress));const notes={aoko:['','Later presentation note: calm is not the same thing as happy.','Her file now avoids calling restraint a virtue.','The word “essential” has been removed from one public description.'],momoka:['','Her notes increasingly describe the weather as a story, not a fact.','A later clipping calls the forecast “too useful to question.”','Several source names are now withheld.'],renji:['','His arrival date becomes a recurring reference point.','Later pages identify him as a witness rather than an outsider.','The island’s public language around him becomes noticeably careful.']};qa('.character-profile[data-character]').forEach(p=>{let evo=q('.reader-evolution-v25',p);if(!evo){evo=document.createElement('p');evo.className='reader-evolution-v25';q('[data-char-panel="notes"]',p)?.appendChild(evo);}if(evo){evo.hidden=!readingProgress;evo.textContent=notes[p.dataset.character]?.[Math.min(readingProgress,3)]||'';}});}
+  q('#reading-memory-open')?.addEventListener('click',()=>{if(readingPop){readingPop.hidden=false;requestAnimationFrame(()=>readingPop.classList.add('is-open'));}});q('#reading-progress-close')?.addEventListener('click',()=>{if(readingPop){readingPop.classList.remove('is-open');setTimeout(()=>readingPop.hidden=true,160);}});qa('[data-reading-progress]').forEach(b=>b.addEventListener('click',()=>{readingProgress=Number(b.dataset.readingProgress||0);save('hitc-reader-progress',String(readingProgress));applyReadingProgress();setTimeout(()=>{if(readingPop)readingPop.hidden=true;},120);}));applyReadingProgress();
+
+  // Release-aware chapter cards and launch mode.
+  const currentChapter=Number(release.currentChapter||0);body.dataset.releaseChapter=String(currentChapter);if(currentChapter>0){body.classList.add('chapter-launch-live');const hero=q('.hero-copy');if(hero&&!q('.release-ribbon',hero)){const r=document.createElement('a');r.href='#preview';r.className='release-ribbon';r.innerHTML=`<span>NOW AVAILABLE</span><strong>Chapter ${currentChapter}</strong><i>Read ↘</i>`;hero.prepend(r);}}
+  qa('.chapter-entry').forEach((entry,i)=>{const chapter=i+1;const available=currentChapter>=chapter;entry.dataset.publicationStatus=available?'available':chapter===currentChapter+1?'coming-soon':'locked';entry.classList.toggle('is-locked',!available&&chapter>currentChapter+1);const status=q('.chapter-status',entry);if(status)status.textContent=available?'Available':chapter===currentChapter+1?'Coming soon':'Locked';if(available&&chapter===1){const link=q('.chapter-archive-link',entry);if(link){link.textContent=load('hitc-chapter-1-started')==='true'?'Continue Chapter 1 ↘':'Open Chapter 1 ↘';}}});
+
+  const chapterLink=q('.chapter-archive-link');const chapterOverlay=q('#chapter-opening-overlay');const chapterAction=q('#chapter-opening-action');
+  chapterLink?.addEventListener('click',e=>{e.preventDefault();save('hitc-chapter-1-started','true');if(chapterOverlay){chapterOverlay.hidden=false;requestAnimationFrame(()=>chapterOverlay.classList.add('is-open'));body.classList.add('chapter-portal-open');}history.replaceState(null,'','#chapter/1');});
+  q('.chapter-opening-close')?.addEventListener('click',()=>{if(chapterOverlay){chapterOverlay.classList.remove('is-open');chapterOverlay.hidden=true;}body.classList.remove('chapter-portal-open');history.replaceState(null,'','#preview');});
+  chapterAction?.addEventListener('click',()=>{if(currentChapter>=1){if(chapterOverlay)chapterOverlay.hidden=true;const reader=q('#reader-mode-overlay');if(reader)reader.hidden=false;}else{if(chapterOverlay)chapterOverlay.hidden=true;q('#preview')?.scrollIntoView({behavior:isReduced()?'auto':'smooth'});}body.classList.remove('chapter-portal-open');});
+  q('#reader-mode-close')?.addEventListener('click',()=>{const r=q('#reader-mode-overlay');if(r)r.hidden=true;});
+
+  // -----------------------------------------------------------------------
+  // 10 / Updates + newsletter presentation.
+  // -----------------------------------------------------------------------
+  qa('[data-update-filter]').forEach(b=>b.addEventListener('click',()=>{qa('[data-update-filter]').forEach(x=>x.classList.toggle('is-active',x===b));qa('[data-update-category]').forEach(item=>item.hidden=b.dataset.updateFilter!=='all'&&item.dataset.updateCategory!==b.dataset.updateFilter);}));
+  const newsletter=q('#newsletter-form'),email=q('#newsletter-email'),newsletterStatus=q('#newsletter-status'),newsletterConfig=window.HITC_NEWSLETTER||{};
+  newsletter?.addEventListener('submit',async e=>{e.preventDefault();const value=email?.value.trim()||'';if(!/^\S+@\S+\.\S+$/.test(value)){newsletter.classList.add('has-error');if(newsletterStatus)newsletterStatus.textContent='Enter a valid email address.';return;}newsletter.classList.remove('has-error');const button=q('button[type="submit"]',newsletter);if(button)button.disabled=true;try{if(newsletterConfig.endpoint){const res=await fetch(newsletterConfig.endpoint,{method:newsletterConfig.method||'POST',headers:newsletterConfig.json===false?undefined:{'Content-Type':'application/json'},body:newsletterConfig.json===false?new URLSearchParams({email:value}):JSON.stringify({email:value,source:'Head in the Clouds website'})});if(!res.ok)throw new Error();}else save('hitc-newsletter-preview-email',value);newsletter.classList.add('is-success');newsletter.innerHTML='<div class="letter-registered"><span>HISANO POST / REGISTERED</span><strong>Letter registered.</strong><p>The next dispatch from Hisano will find you.</p></div>';}catch(_){if(newsletterStatus)newsletterStatus.textContent='That did not go through. Please try again.';}finally{if(button)button.disabled=false;}});
+  const storedMail=load('hitc-newsletter-preview-email','');if(storedMail&&email)email.value=storedMail;
+
+  // -----------------------------------------------------------------------
+  // 11 / Animation asset framework: real authored motion can replace placeholders.
+  // -----------------------------------------------------------------------
+  const animationTargets={
+    heroClouds:'.hero',
+    aokoAtmosphere:'#aoko-custom-atmosphere',
+    characterAtmosphere:'#character-wide-atmosphere',
+    hisanoSea:'.hisano-section',
+    historyEra:'#history-era-scene',
+    galleryAtmosphere:'#gallery',
+    storyAtmosphere:'#story',
+    charactersNature:'#characters',
+    historySky:'#history',
+    readAtmosphere:'#preview',
+    scenesAtmosphere:'#scenes',
+    chapterPortal:'#chapter-opening-overlay',
+    closingCoast:'.closing-sequence',
+    nightSky:'.closing-sequence'
+  };
+  Object.entries(animationTargets).forEach(([key,selector])=>{const cfg=animations[key];if(!cfg?.src)return;const target=q(selector);if(!target)return;const video=document.createElement('video');video.className=`production-animation production-animation-${key}`;video.src=cfg.src;video.autoplay=true;video.loop=cfg.loop!==false;video.muted=cfg.muted!==false;video.playsInline=true;video.setAttribute('aria-hidden','true');target.prepend(video);video.play().catch(()=>{});});
+
+  // -----------------------------------------------------------------------
+  // 12 / Seasonal edition, release event and score-aware breathing.
+  // -----------------------------------------------------------------------
+  let season=release.seasonalEvent||'auto';if(season==='auto'){const m=new Date().getMonth()+1;season=[12,1,2].includes(m)?'winter':[6,7,8].includes(m)?'summer':[9,10,11].includes(m)?'autumn':'spring';}if(season!=='none')body.classList.add(`season-${season}`);
+  const music=q('#background-music');
+  setInterval(()=>{if(!music||music.paused||isReduced())return;const breath=(Math.sin(music.currentTime*.23)+1)/2;body.style.setProperty('--score-breath',breath.toFixed(3));},350);
+
+  // -----------------------------------------------------------------------
+  // 13 / Hash/deep-link support without turning the site into a mini-game.
+  // -----------------------------------------------------------------------
+  function handleHash(){const h=location.hash;if(h.startsWith('#character/')){const key=h.split('/')[1];q('#characters')?.scrollIntoView({behavior:'auto'});q(`.character-tab[data-character-target="${key}-profile"]`)?.click();return;}if(h.startsWith('#history/')){q('#history')?.scrollIntoView({behavior:'auto'});selectHistory((Number(h.split('/')[1])||1)-1,{push:false});return;}if(h.startsWith('#hisano/')){const key=h.split('/')[1];q('#hisano')?.scrollIntoView({behavior:'auto'});setTimeout(()=>{openMapRoom();setTimeout(()=>selectRoomLocation(key),240);},80);return;}if(h==='#chapter/1'){q('#preview')?.scrollIntoView({behavior:'auto'});}}
+  window.addEventListener('popstate',handleHash);setTimeout(handleHash,60);
+  qa('.map-hotspot,.map-location-list [data-location]').forEach(b=>b.addEventListener('click',()=>history.replaceState(null,'',`#hisano/${b.dataset.location}`)));
+
+  // A very subtle visual director's cut for repeat visits; full intro timing remains identical.
+  if(visits>1)body.classList.add('returning-visitor');if(visits>3)body.classList.add('frequent-visitor');
+
+
+  // v27 keeps hover silent. Deliberate click sonics are handled centrally in script.js;
+  // Open Chapter remains the intentionally silent exception.
+
+
+  // -----------------------------------------------------------------------
+  // v29 COMPLETE / Precision pass
+  // -----------------------------------------------------------------------
+
+  const sceneSection=q('#scenes');
+  const aokoFeature=q('#aoko-feature');
+  const aokoVoice=q('#aoko-feature-voice');
+  const aokoReplay=q('#aoko-voice-replay');
+  let aokoVoicePlayed=false;
+
+  function playAokoVoice({force=false}={}){
+    if(!aokoVoice || (audioApi.soundMuted?.() && !force)) return;
+    try{
+      aokoVoice.pause();
+      aokoVoice.currentTime=0;
+      aokoVoice.volume=Math.min(.82,.68*(audioState.environment??1)+.12);
+      aokoFeature?.classList.remove('is-speaking');void aokoFeature?.offsetWidth;aokoFeature?.classList.add('is-speaking');
+      const playPromise=aokoVoice.play();
+      if(playPromise?.catch) playPromise.catch(()=>{});
+      aokoVoicePlayed=true;
+      setTimeout(()=>aokoFeature?.classList.remove('is-speaking'),11600);
+    }catch(_){}
+  }
+
+  aokoReplay?.addEventListener('click',()=>playAokoVoice({force:true}));
+  // v34: this scene is invitation-gated. It no longer auto-plays when scrolled into view.
+  if(aokoFeature && 'IntersectionObserver' in window){
+    const featureObs=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting && entry.intersectionRatio>.32){
+          aokoFeature.classList.add('is-seen');
+        }
+      });
+    },{threshold:[.20,.32,.60]});
+    featureObs.observe(aokoFeature);
+  }
+  window.HITC_AOKO_SCENE_API={play:playAokoVoice,stop:()=>{try{aokoVoice?.pause();}catch(_){}},element:aokoFeature};
+  const aokoImg=q('.aoko-feature-figure>img');
+  const aokoLoading=q('[data-scene-loading="aoko"]');
+  if(aokoImg){
+    const ready=()=>aokoLoading?.classList.add('is-ready');
+    if(aokoImg.complete) ready(); else aokoImg.addEventListener('load',ready,{once:true});
+    aokoImg.addEventListener('error',ready,{once:true});
+  }
+
+  // Character focus transition: camera-like focus, no zoom.
+  qa('.character-tab').forEach(tab=>tab.addEventListener('click',()=>{
+    const s=q('#characters'); if(!s||isReduced()) return;
+    s.classList.remove('is-character-focusing'); void s.offsetWidth; s.classList.add('is-character-focusing');
+    setTimeout(()=>s.classList.remove('is-character-focusing'),340);
+  },{capture:true}));
+
+  // Contextual click visuals sit on top of the existing subtle page ripple.
+  function clickAccentFor(target){
+    if(target.closest('.site-header') || target.closest('.chapter-archive-link,[data-silent-ui="true"]')) return '';
+    if(target.closest('.character-selector,.character-subnav,.character-copy-stage')) return 'paper';
+    if(target.closest('.map-hotspot,.map-location-list,.map-info-tabs,.map-room-overlay,.passport-overlay')) return 'locator';
+    if(target.closest('.history-experience')) return 'history';
+    if(target.closest('.newsletter-card,.updates-section')) return 'post';
+    if(target.closest('.gallery-piece,.gallery-section')) return 'focus';
+    return '';
+  }
+  document.addEventListener('click',e=>{
+    const target=e.target.closest('a[href],button'); if(!target) return;
+    const kind=clickAccentFor(target); if(!kind||isReduced()) return;
+    const r=target.getBoundingClientRect();
+    const x=e.clientX||r.left+r.width/2,y=e.clientY||r.top+r.height/2;
+    const n=document.createElement('span'); n.className=`v29-click-accent ${kind}`; n.style.left=`${x}px`;n.style.top=`${y}px`;
+    document.body.appendChild(n);setTimeout(()=>n.remove(),680);
+  },{capture:false});
+
+  // Scenes from Hisano: pure atmosphere, no unlocks, no archive.
+  const sceneCards=qa('.hisano-scene-card');
+  const sceneStage=q('#scene-stage'),sceneTime=q('#scene-stage-time'),sceneTitle=q('#scene-stage-title'),sceneCopy=q('#scene-stage-copy');
+  function selectScene(card,{sound=true}={}){
+    if(!card)return;
+    sceneCards.forEach(x=>x.classList.toggle('is-active',x===card));
+    if(sceneStage) sceneStage.dataset.tone=card.dataset.sceneTone||'morning';
+    if(sceneTime) sceneTime.textContent=`${card.dataset.sceneTime} / HISANO`;
+    if(sceneTitle) sceneTitle.textContent=card.dataset.sceneTitle||'Hisano';
+    if(sceneCopy) sceneCopy.textContent=card.dataset.sceneCopy||'';
+    save('hitc-last-scene-v29',card.dataset.sceneTime||'');
+    if(sound){
+      const tone=card.dataset.sceneTone;
+      if(tone==='night') audioApi.playEnvironment?.('night');
+      else if(tone==='golden') audioApi.playEnvironment?.('sea');
+      else audioApi.playEnvironment?.('nature');
+    }
+  }
+  sceneCards.forEach(c=>c.addEventListener('click',()=>selectScene(c)));
+  const savedScene=load('hitc-last-scene-v29','');
+  if(savedScene){const card=sceneCards.find(c=>c.dataset.sceneTime===savedScene);if(card)selectScene(card,{sound:false});}
+
+  // Gallery exhibition: artwork replaces interface chrome.
+  const galleryItems=qa('.gallery-piece[data-gallery-slot],.gallery-piece[data-gallery-src]');
+  const exhibition=q('#gallery-exhibition'),exhibitionImg=q('#gallery-exhibition-image'),exhibitionEmpty=q('#gallery-exhibition-empty'),exhibitionTitle=q('#gallery-exhibition-title');
+  let galleryIndex=0;
+  function openGallery(index){
+    if(!exhibition||!galleryItems.length)return;
+    galleryIndex=(index+galleryItems.length)%galleryItems.length;
+    const item=galleryItems[galleryIndex];
+    const src=item.dataset.gallerySrc||'';
+    const title=item.dataset.galleryTitle||`Plate ${item.dataset.gallerySlot||galleryIndex+1}`;
+    if(exhibitionTitle) exhibitionTitle.textContent=title;
+    if(exhibitionImg){
+      exhibitionImg.hidden=!src;
+      if(src){
+        exhibitionImg.alt=title;
+        exhibitionImg.src=src;
+      } else exhibitionImg.removeAttribute('src');
+    }
+    if(exhibitionEmpty){
+      exhibitionEmpty.hidden=!!src;
+      const strong=exhibitionEmpty.querySelector('strong');
+      const small=exhibitionEmpty.querySelector('small');
+      if(strong)strong.textContent=title;
+      if(small)small.textContent=`PLATE ${item.dataset.gallerySlot||String(galleryIndex+1).padStart(2,'0')} / 作品挿入予定`;
+    }
+    exhibition.hidden=false;requestAnimationFrame(()=>exhibition.classList.add('is-open'));body.classList.add('modal-open');
+  }
+  function closeGallery(){if(!exhibition)return;exhibition.classList.remove('is-open');body.classList.remove('modal-open');setTimeout(()=>{if(!exhibition.classList.contains('is-open'))exhibition.hidden=true;},220);}
+  galleryItems.forEach((item,i)=>{
+    item.addEventListener('click',()=>{audioApi.playUi?.('gallery',item);openGallery(i);});
+    item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();audioApi.playUi?.('gallery',item);openGallery(i);}});
+  });
+  q('#gallery-exhibition-close')?.addEventListener('click',closeGallery);
+
+  // Cinematic History and closing handoffs. No scroll lock: just a controlled film cut.
+  const veil=q('#cinematic-transition-veil');
+  function playVeil(){
+    if(!veil||isReduced())return;
+    veil.classList.remove('is-active');void veil.offsetWidth;veil.classList.add('is-active');
+    setTimeout(()=>veil.classList.remove('is-active'),760);
+  }
+  [['#history','history'],['#closing-sequence','closing']].forEach(([sel,key])=>{
+    const el=q(sel);if(!el||!('IntersectionObserver' in window))return;
+    let armed=true;
+    const obs=new IntersectionObserver(entries=>entries.forEach(en=>{
+      if(en.isIntersecting&&en.intersectionRatio>.36&&armed){armed=false;playVeil();setTimeout(()=>armed=true,2400);}
+    }),{threshold:[.18,.36,.6]});
+    obs.observe(el);
+  });
+
+  // History atmosphere: information remains fully public, presentation changes by era.
+  qa('.history-marker').forEach((marker,i)=>marker.addEventListener('click',()=>{
+    body.dataset.historyEra=String(i);
+    if(i<=1) audioApi.playEnvironment?.('nature');
+    else if(i<=5) audioApi.playEnvironment?.('sea');
+    else if(i>=7) audioApi.playEnvironment?.('night');
+  }));
+
+  // Sophisticated ending: the interface yields as the final image takes over.
+  const ending=q('#closing-sequence');
+  if(ending&&'IntersectionObserver' in window){
+    const endObs=new IntersectionObserver(entries=>entries.forEach(en=>{
+      body.classList.toggle('v29-ending',en.isIntersecting&&en.intersectionRatio>.46);
+    }),{threshold:[.2,.46,.72]});
+    endObs.observe(ending);
+  }
+
+  // Trailer mode: narrated, guided and synchronised to the island introduction.
+  const trailerButton=q('#hisano-trailer-start'),trailerOverlay=q('#trailer-overlay'),trailerPrelude=q('#trailer-prelude'),trailerProgress=q('#trailer-progress');
+  const trailerNarration=q('#hisano-trailer-narration'),trailerCaptionCard=q('#trailer-caption-card'),trailerCaption=q('#trailer-caption');
+  const TRAILER_DURATION=47000;
+  let trailerActive=false,trailerTimers=[],trailerRAF=0,trailerStarted=0,trailerCaptionIndex=-1;
+  const trailerCaptions=[
+    [0,"Funny thing about Hisano. Wasn't always like this."],
+    [4.8,"Used to be, you'd head out in the morning and never quite know what the sky had waiting for you."],
+    [10.8,"Rain, wind, storms rolling in off the sea. That was just life here."],
+    [15.2,"Then about fifteen years ago, things changed. Skies cleared up. Tourists started coming."],
+    [21.4,"Hotels went up. Solar fields too. Everyone said Hisano had finally gotten lucky. Maybe we did."],
+    [28.8,"But you spend long enough at sea, you learn not to trust a sky that stays blue for too long."],
+    [36.2,"And lately, I've been seeing clouds on the horizon again."],
+    [41.0,"Anyway, welcome to Hisano. Enjoy the sunshine while it lasts."]
+  ];
+  const trailerStops=[
+    {id:'story',at:0,sound:'story'},
+    {id:'characters',at:7600,sound:'characters'},
+    {id:'hisano',at:14500,sound:'hisano'},
+    {id:'map-room',at:20400,sound:'hisano'},
+    {id:'history',at:28700,sound:'history'},
+    {id:'preview',at:36500,sound:'preview'},
+    {id:'closing-sequence',at:41900,sound:'home'}
+  ];
+  function clearTrailerTimers(){trailerTimers.forEach(clearTimeout);trailerTimers=[];cancelAnimationFrame(trailerRAF);}
+  function setTrailerCaption(seconds){
+    let idx=0;for(let i=0;i<trailerCaptions.length;i++)if(seconds>=trailerCaptions[i][0])idx=i;
+    if(idx===trailerCaptionIndex)return;trailerCaptionIndex=idx;
+    if(!trailerCaption)return;trailerCaptionCard?.classList.add('is-changing');
+    setTimeout(()=>{if(trailerCaption)trailerCaption.textContent=trailerCaptions[idx][1];trailerCaptionCard?.classList.remove('is-changing');},90);
+  }
+  function stopTrailer(eventOrOptions={}){
+    if(!trailerActive)return;
+    const natural=eventOrOptions&&eventOrOptions.natural===true;
+    trailerActive=false;clearTrailerTimers();body.classList.remove('trailer-mode');delete body.dataset.trailerScene;
+    if(trailerOverlay)trailerOverlay.hidden=true;if(trailerPrelude)trailerPrelude.hidden=true;if(trailerCaptionCard)trailerCaptionCard.hidden=true;
+    if(trailerProgress)trailerProgress.style.width='0%';trailerCaptionIndex=-1;
+    if(trailerNarration){try{trailerNarration.pause();trailerNarration.currentTime=0;}catch(_){}}
+    if(room&&!room.hidden)closeMapRoom();
+    if(!natural)audioApi.restoreMusic?.(1.15);
+    window.removeEventListener('wheel',stopTrailer,true);window.removeEventListener('pointerdown',stopTrailer,true);window.removeEventListener('keydown',stopTrailer,true);
+  }
+  function trailerFrame(){
+    if(!trailerActive)return;
+    const elapsed=performance.now()-trailerStarted;
+    const p=Math.min(1,elapsed/TRAILER_DURATION);
+    if(trailerProgress)trailerProgress.style.width=`${p*100}%`;
+    setTrailerCaption(elapsed/1000);
+    trailerRAF=requestAnimationFrame(trailerFrame);
+  }
+  function preloadTrailerArt(){
+    const sources=['assets/world/hisano-map.png','assets/characters/aoko.png','assets/characters/momoka-tachibana.png','assets/characters/renji.png'];
+    const jobs=sources.map(src=>new Promise(resolve=>{const im=new Image();im.onload=im.onerror=resolve;im.src=src;}));
+    if(trailerNarration){jobs.push(new Promise(resolve=>{if(trailerNarration.readyState>=3)return resolve();const done=()=>resolve();trailerNarration.addEventListener('canplaythrough',done,{once:true});trailerNarration.addEventListener('error',done,{once:true});trailerNarration.load();setTimeout(done,1800);}));}
+    return Promise.all(jobs);
+  }
+  function beginTrailerCuts(){
+    if(!trailerActive)return;
+    if(trailerPrelude)trailerPrelude.hidden=true;if(trailerCaptionCard)trailerCaptionCard.hidden=false;
+    trailerStarted=performance.now();setTrailerCaption(0);trailerFrame();
+    audioApi.duckMusic?.(.22,.95);
+    if(trailerNarration&&!audioApi.soundMuted?.()){
+      try{trailerNarration.currentTime=0;trailerNarration.volume=Math.min(.96,.78*(audioState.environment??1)+.16);const pp=trailerNarration.play();pp?.catch?.(()=>{});}catch(_){}
+    }
+    trailerStops.forEach(stop=>{
+      trailerTimers.push(setTimeout(()=>{
+        if(!trailerActive)return;
+        if(stop.id==='map-room'){
+          openMapRoom();body.dataset.trailerScene='map-room';audioApi.playUi?.('hisano',q('#map-room-overlay'));return;
+        }
+        if(room&&!room.hidden)closeMapRoom();
+        q(`#${stop.id}`)?.scrollIntoView({behavior:isReduced()?'auto':'smooth',block:'start'});
+        audioApi.playUi?.(stop.sound||'default',q(`#${stop.id}`));body.dataset.trailerScene=stop.id;
+      },stop.at));
+    });
+    trailerTimers.push(setTimeout(()=>stopTrailer({natural:true}),TRAILER_DURATION));
+    setTimeout(()=>{window.addEventListener('wheel',stopTrailer,true);window.addEventListener('pointerdown',stopTrailer,true);window.addEventListener('keydown',stopTrailer,true);},450);
+  }
+  async function startTrailer(){
+    if(trailerActive)return;trailerActive=true;body.classList.add('trailer-mode');if(trailerOverlay)trailerOverlay.hidden=false;if(trailerPrelude)trailerPrelude.hidden=false;if(trailerCaptionCard)trailerCaptionCard.hidden=true;
+    const minimum=new Promise(r=>setTimeout(r,950));await Promise.all([preloadTrailerArt(),minimum]);beginTrailerCuts();
+  }
+  trailerButton?.addEventListener('click',startTrailer);
+  window.HITC_TRAILER_API={start:startTrailer,stop:()=>stopTrailer({}),isActive:()=>trailerActive};
+
+  // Exhibition keyboard and trailer escape.
+  document.addEventListener('keydown',e=>{
+    if(exhibition&&!exhibition.hidden){
+      if(e.key==='Escape'){closeGallery();return;}
+      if(e.key==='ArrowRight'){e.preventDefault();openGallery(galleryIndex+1);return;}
+      if(e.key==='ArrowLeft'){e.preventDefault();openGallery(galleryIndex-1);return;}
+    }
+    if(trailerActive&&e.key==='Escape') stopTrailer();
+  });
+
+  // Authored scene-transition slots: real WebM/MP4 can replace CSS atmosphere without layout edits.
+  const v29AnimationTargets={
+    storyAtmosphere:'#story',charactersNature:'#characters',historySky:'#history',
+    readAtmosphere:'#preview',scenesAtmosphere:'#scenes'
+  };
+  Object.entries(v29AnimationTargets).forEach(([key,selector])=>{
+    const cfg=animations[key];if(!cfg?.src)return;const target=q(selector);if(!target)return;
+    const video=document.createElement('video');video.className=`production-animation production-animation-${key}`;
+    video.src=cfg.src;video.autoplay=true;video.loop=cfg.loop!==false;video.muted=cfg.muted!==false;video.playsInline=true;video.setAttribute('aria-hidden','true');
+    target.prepend(video);video.play().catch(()=>{});
+  });
+
+  // Optional soundtrack variants. Fallback is always the existing score.
+  const scoreVariants=window.HITC_SCORE_VARIANTS||{};
+  const scoreNodes={};
+  Object.entries(scoreVariants).forEach(([key,src])=>{
+    if(!src)return;const a=new Audio(src);a.loop=true;a.preload='auto';a.volume=0;scoreNodes[key]=a;
+  });
+  let scoreVariant='';
+  function desiredScore(){
+    if(body.classList.contains('chapter-portal-open'))return 'chapter';
+    if(body.classList.contains('v29-ending'))return 'ending';
+    const phase=body.dataset.dayPhase||'morning';
+    return phase==='night'||phase==='blue'||phase==='dusk'?'dusk':phase==='afternoon'||phase==='golden'?'afternoon':'morning';
+  }
+  function fadeNode(node,to,duration=900){
+    if(!node)return;const start=node.volume||0,began=performance.now();
+    if(to>0&&node.paused)node.play().catch(()=>{});
+    const step=now=>{const p=Math.min(1,(now-began)/duration);node.volume=start+(to-start)*(1-Math.pow(1-p,3));if(p<1)requestAnimationFrame(step);else if(to<=.001)node.pause();};requestAnimationFrame(step);
+  }
+  setInterval(()=>{
+    const next=desiredScore();if(next===scoreVariant)return;
+    const nextNode=scoreNodes[next];if(!nextNode)return;
+    Object.entries(scoreNodes).forEach(([k,node])=>fadeNode(node,k===next?.14*(audioState.music??1):0,1100));
+    scoreVariant=next;body.classList.add('score-transitioning');setTimeout(()=>body.classList.remove('score-transitioning'),1200);
+  },800);
+
+  // Returning presentation, not secrets: viewed art and chosen states remain visible.
+  if(visits>1){
+    const detail=q('#opening-return-detail');
+    if(detail&&!detail.textContent)detail.textContent='また、ヒサノへ。';
+  }
+
+})();
+
+
+/* v32 refinement pass */
+window.addEventListener('load',()=>{
+  const trailerBtn=document.getElementById('hisano-trailer-start');
+  const trailerNarration=document.getElementById('hisano-trailer-narration');
+  const trailerOverlay=document.getElementById('trailer-overlay');
+  const trailerCaptionCard=document.getElementById('trailer-caption-card');
+  const mapOverlay=document.getElementById('map-room-overlay');
+  const roomCanvas=document.getElementById('map-room-canvas');
+  const roomNote=document.getElementById('map-room-note') || document.querySelector('.map-room-note');
+
+  const syncTrailerVisual=()=>{
+    if(!trailerBtn || !trailerNarration) return;
+    const playing = !trailerNarration.paused && !trailerNarration.ended;
+    trailerBtn.classList.toggle('is-playing', playing);
+  };
+  if(trailerNarration){
+    ['play','pause','ended'].forEach(ev=>trailerNarration.addEventListener(ev,syncTrailerVisual));
+    syncTrailerVisual();
+  }
+
+  const stopMutationObs = new MutationObserver(()=>{
+    const hidden = trailerCaptionCard?.hasAttribute('hidden');
+    if(trailerOverlay && hidden===false){
+      trailerOverlay.classList.add('is-captioning');
+    } else {
+      trailerOverlay?.classList.remove('is-captioning');
+    }
+  });
+  if(trailerCaptionCard) stopMutationObs.observe(trailerCaptionCard,{attributes:true,attributeFilter:['hidden']});
+
+  if(mapOverlay){
+    const openObs = new MutationObserver(()=>{
+      const hidden = mapOverlay.hasAttribute('hidden');
+      if(!hidden){
+        mapOverlay.classList.add('is-opening');
+        requestAnimationFrame(()=>mapOverlay.classList.add('is-open'));
+        setTimeout(()=>mapOverlay.classList.remove('is-opening'),420);
+      } else {
+        mapOverlay.classList.remove('is-open','is-opening');
+      }
+    });
+    openObs.observe(mapOverlay,{attributes:true,attributeFilter:['hidden']});
+  }
+
+  const bindHotspots=()=>{
+    document.querySelectorAll('.map-room-hotspot').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        btn.classList.remove('is-pulsing');
+        void btn.offsetWidth;
+        btn.classList.add('is-pulsing');
+        if(roomNote){
+          roomNote.classList.add('is-switching');
+          setTimeout(()=>roomNote.classList.remove('is-switching'),220);
+        }
+      });
+      btn.addEventListener('animationend',()=>btn.classList.remove('is-pulsing'));
+    });
+  };
+  bindHotspots();
+  if(roomCanvas){
+    const obs=new MutationObserver(bindHotspots);
+    obs.observe(roomCanvas,{childList:true});
+  }
+});

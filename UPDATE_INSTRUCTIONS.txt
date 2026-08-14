@@ -1,0 +1,29 @@
+HEAD IN THE CLOUDS — HOW FUTURE UPDATES WORK
+
+YOU DO NOT HAVE TO REBUILD EVERYTHING EACH TIME.
+
+OPTION 1 — EASIEST
+------------------
+When I give you a new complete version:
+1. Download the new ZIP.
+2. Extract it.
+3. In VS Code choose File > Open Folder.
+4. Open the new extracted folder.
+5. Click Go Live.
+
+OPTION 2 — KEEP ONE MASTER FOLDER
+---------------------------------
+This is better once you start adding lots of your own artwork.
+
+1. Keep your current `head-in-the-clouds-professional` folder as your MASTER folder.
+2. When I give you an UPDATE ZIP, extract it.
+3. Copy the files/folders from the update into your master folder.
+4. Windows may ask whether to replace existing files. Choose Replace.
+5. Your artwork files that are not part of the update remain where they are.
+6. Refresh the website in the browser.
+
+If I send a full version and an update pack, use the UPDATE PACK for your master folder.
+
+IMPORTANT
+---------
+Keep the same folder structure. In particular, do not pull index.html out by itself.
